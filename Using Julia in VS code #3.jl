@@ -47,11 +47,8 @@ for h in 1:length(reps) # Loop over networks
 
     for i in 1:length(a) # Loop over a and K
         for j in 1:length(K)
-            
-            alpha = a[i] 
-            carry_capacity = K[j]
 
-            p = model_parameters(A, α = alpha, K = carry_capacity, productivity = :competitive) # Create the models parameters - within this find all the parameters in the model - further putting ?model_parameters in the REPL and giving it a read
+            p = model_parameters(A, α = a[i], K = K[j], productivity = :competitive) # Create the models parameters - within this find all the parameters in the model - further putting ?model_parameters in the REPL and giving it a read
 
             bm = rand(size(A,1))
             out = simulate(p, bm, start=0, stop = 2000)
@@ -61,8 +58,11 @@ for h in 1:length(reps) # Loop over networks
             stability = population_stability(out, last=1000)
             biomass = total_biomass(out, last=1000)
 
-            push!(df, [alpha, carry_capacity, h, diversity, stability, biomass])
-            println(("alpha = $alpha", "carrying capacity = $carry_capacity", "network no: $h"))
+            push!(df, [a[i], K[j], h, diversity, stability, biomass])
+
+            a_num = a[i]
+            K_num = K[j]
+            println(("alpha = $a_num", "carrying capacity = $K_num", "network no: $h"))
         end
     end
 end
