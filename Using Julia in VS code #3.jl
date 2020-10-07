@@ -56,7 +56,8 @@ for h in 1:length(reps) # Loop over networks
             bm = rand(size(A,1))
             out = simulate(p, bm, start=0, stop = 2000)
 
-            diversity = foodweb_evenness(out, last=1000)
+            # Calculate output metrics
+            diversity = foodweb_evenness(out, last=1000) 
             stability = population_stability(out, last=1000)
             biomass = total_biomass(out, last=1000)
 
