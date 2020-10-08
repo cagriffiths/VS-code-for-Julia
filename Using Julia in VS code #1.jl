@@ -56,14 +56,23 @@ Random.seed!(33)
 aps = "Animal and Plant Sciences" # must use "" and not ''
 # (3) Allocate an integer:
 number = 5
+# Note that you can easily insert variables into strings using $ and concatenate strings using * : 
+println("This is a number: $number" * " - type: Integer")
 # (4) Allocate a floating point number:
 pi_sum = 3.1415
+# note: pi can also be called using pi or π (type \pi and tab to transform into the unicode symbol)
+pi_sum2 = pi
+pi_sum3 = π
+# you can actually use unicode symbols in Julia, this can be useful for naming parameters following standards: 
+λ = 4
+# and you can attribute multiple variables at the same time: 
+αi, βi, γi = 1.3, 2.1, exp(39)
 # Note - Julia is like R and Python, it can infer the type of object (Integer, Float) on the left hand side of the equals sign, you don't have to justify it like you do in C. 
 # However, you can if needed e.g.
 pi_sum1 = Float64(3.141592)
 # (5) You can then check the object type using:
 typeof(number)
-typeof(pi_sum), typeof(pi_sum)
+typeof(pi_sum), typeof(pi_sum2) #note here that by using the preallocated variable pi, we are actually using an object of type Irrational (a specific type of float)
 # (6) You can print an object (useful when running simulations) using:
 print(aps) 
 print(aps) # prints in the same line or
@@ -71,7 +80,8 @@ println(aps) # prints on the next line
 # (7) and convert between object types using:
 a = 2 
 b = convert(Float64, a) 
-# (8) It's also very easy to preform simple mathematical operations:
+b = Float64(a) #also works
+# (8) It's also very easy to perform simple mathematical operations:
 c = 2
 d = 3
 sum = c + d
