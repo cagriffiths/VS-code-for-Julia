@@ -3,9 +3,9 @@
 # Authors - Chris Griffiths and Eva Delmas
 # Title - Using Julia in VS code #2
 ###################################################################################################################################################################
-# This doc follows on from "Using Julia in VS code #1"
+# This doc follows on from "Using Julia in VS code #1" and assumes that your still working from your directory
 import Pkg
-using Plots, DataFrames, Distributions, Random, EcologicalNetworks, BioEnergeticFoodWebs, DelimitedFiles # Reload packages if needed
+using Plots, DataFrames, Distributions, Random, EcologicalNetworks, BioEnergeticFoodWebs, DelimitedFiles, CSV # Reload packages if needed
 Pkg.status() # Check packages and versions
 
 # This doc covers the following:
@@ -208,6 +208,7 @@ A
 # Red wavy line under code - error in code 
 # As in R, indexing is ordered by row and then by column
 # Julia gets a bit funny about indenting - when writing a loop or a function, make sure the code enclosed in the loop or function is indented. VS code typically does this for you. 
+# You can view your current variables (similar to the top right hand panel in RStudio) by clickling on the 'Julia explorer: Julia workspace' symbol in the activity bar (final/5th symbol). You can then look at them in more detail by clicking the sideways arrow. 
 # Julia has strange aspect where if a=b, a change in b will automatically cause a change in a. For example:
 a = [1,2,3]
 b = a
