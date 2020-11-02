@@ -15,7 +15,7 @@ Pkg.status() # Check packages and versions
 # Check out the paper before we start - https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713
 
 # Aim of example 1 - investigate the effect of increasing the carrying capacity of the resource (K) on food web diversity
-# Also going to vary alpha (the amount of interspecific competition relative to intraspecific competition) and repeat the simulations 5 times (with 5 different food web networks)
+# Also we're going to vary alpha (the amount of interspecific competition relative to intraspecific competition) and repeat the simulations 5 times (with 5 different food web networks)
 
 Random.seed!(21)
 
@@ -30,7 +30,7 @@ reps = 5 # Number of unique food web networks
 
 # (2) Step two - create a dataframe to store output
 df = DataFrame(alpha = [], K = [], network = [], diversity = [], stability = [], biomass = [])
-#and the folder: 
+# and the out_objects folder (if you have already manually created it): 
 mkdir("out_objects/")
 
 # (3) Construct 5 random networks with 20 species and an connectance of 0.15
@@ -56,7 +56,7 @@ for h in 1:reps # Loop over networks
         for j in 1:length(K)
             
             # Create model parameters object:
-            p = model_parameters(A, α = a[i], K = [K[j]], productivity = :competitive) # here you specify any non-default parameters of interest and provide the network matrix (A)
+            p = model_parameters(A, α = a[i], K = K[j], productivity = :competitive) # here you specify any non-default parameters of interest and provide the network matrix (A)
             # The possible arguments that can be passed into model_parameters are many, make sure you type ?model_parameters in the REPL and review the text, alternatively visit: 
             # NOTE - In the MEE paper, the following argument is used (productivity = :competitive) to specify that species compete with themselves at a rate of 1.0, and with one another at a rate of α - unfortuntely, this is producing a strange error at the moment - we'll look into it.
 
@@ -70,9 +70,9 @@ for h in 1:reps # Loop over networks
             # Again, we advised typing ?simulate into the REPL. 
             # Here, it might be useful to write out your model object, the best way to do this is using the JDL2 package. JDL2 is a Julia file type that can be read back into Julia easily using the @load macro and can be handled by other coding platform e.g. R. 
             # You can write out JLD2s file using the @save macro:
-            a_num = a[i] # dummy for alpha
-            K_num = K[j] # dummy for K
-            #@save "out_objects/model_output, network = $h, alpha = $a_num, K = $K_num.jld2" out # save model object in out_objects folder
+            a_num = a[i] # dummy for alpha - naming purposes
+            K_num = K[j] # dummy for K - naming purposes
+            @save "out_objects/model_output, network = $h, alpha = $a_num, K = $K_num.jld2" out # save model object in out_objects folder
 
             # Calculate output metrics
             diversity = foodweb_evenness(out, last=1000) # 
@@ -89,9 +89,9 @@ end
 # NOTE - if you remove the @save command the code gets alot faster
 
 # (5) Output data and explore
-# Mess around with the simulate object (out)
+# Mess around with the simulate object (stored as a dictionary called out)
 # Read in an model object (feel free to pick an out object in your out_objects folder)
-@load "out_objects/model_output, network = 1, alpha = 0.92, K = 0.1.jld2" # Will load the out object 
+@load "out_objects/model_output, network = 1, alpha = 0.92, K = 0.1.jld2" # Will load the out object
 # The out object has 3 slots:
 # (1) :p - lists the model parameters
 # (2) :B - estimated biomass (species * time)
@@ -101,7 +101,7 @@ time = out[:t] # extract time
 plot(time, bio, legend = false, ylabel = "biomass", xlabel = "time", ylims = (0,0.5)) # plot species biomass throught time - typically the biomass will either flatline (stable dynamics) or will enter transient dynamics (up and downs etc)
 sp = out[:p][:S] # Number of species in the system - should be 20
 extinct = out[:p][:extinctions] # Identity of extinct species?
-pers = 1 - length(extinct) / sp
+pers = 1 - length(extinct) / sp # Persistence = proportion of species remaining
 
 # Look at the dataframe:
 describe(df) # prints the dataframe
@@ -110,7 +110,7 @@ first(df, 6) # first 6 rows
 
 #=
 Let's reproduce fig.1 of the paper
-y = foodwebs diversity measured as their evenness (which quantifies how close in biomass each species in a food web is)
+y = foodweb diversity measured as their evenness (which quantifies how close in biomass each species in a food web is)
 x = carrying capacity 
 by = strength of inter- vs intraspecific competition
 =#
