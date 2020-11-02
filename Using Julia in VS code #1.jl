@@ -48,7 +48,9 @@ Pkg.add("Random")
 Pkg.add("EcologicalNetworks")
 Pkg.add("BioEnergeticFoodWebs")
 Pkg.add("DelimitedFiles")
-using Plots, DataFrames, Distributions, Random, EcologicalNetworks, BioEnergeticFoodWebs, DelimitedFiles # This might take a while to compile
+Pkg.add("RDatasets")
+Pkg.add("Gadfly")
+using Plots, DataFrames, Distributions, Random, EcologicalNetworks, BioEnergeticFoodWebs, DelimitedFiles, RDatasets # This might take a while to compile
 # (4) You can then check the packages and versions that are currently active in your directory using:
 Pkg.status() # useful when using the BioEnergeticFoodWebs package as Eva has a ton of versions...
 
@@ -89,10 +91,10 @@ b = Float64(a) #also works
 # (8) It's also very easy to perform simple mathematical operations:
 c = 2
 d = 3
-sum = c + d
-diff = c - d
-product = c * d
-div = c / d
-pow = c^2
+sumcd = c + d
+diffcd = c - d
+productcd = c * d
+divcd = c / d
+powcd = c^2
 # For a complete list of all mathematical operations see https://docs.julialang.org/en/v1/manual/mathematical-operations/index.html
 
