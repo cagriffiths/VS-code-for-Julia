@@ -6,12 +6,13 @@
 ###################################################################################################################################################################
 # This doc follows on from "Using Julia in VS code" #1, #2 and #3 and assumes that your still working from your directory
 
-# Here we will see how to use DifferentialEquation.jl to solve differential equations
+# Here we will illistrate how to use DifferentialEquation.jl to solve differential equations. In particular we are interested in how to model the effect of a contaminant on a two species Lotka Volterra like (predator and prey) system. We assume that the effect of the contaminant follows a dose response like relationship whereby increasing levels of contaminaton results in a reduced rate of ingestion. 
 
 import Pkg
-Pkg.add("DifferentialEquations") 
-using DifferentialEquations, Plots
+Pkg.add("DifferentialEquations") # Installing the DifferentialEquations package
+using DifferentialEquations, Plots # Also want to use plots
 
+# build our dose response relationship
 # a declining sigmoid function ----
 # this is the basis of thinking about how alpha changes with
 # increasing contaminant (used below)
@@ -22,14 +23,13 @@ plot(AA, Aout, xlabel = "AA", ylabel = "Aout")
 
 ## Core example
 ​
-# Setup of the model/differential equations as a function, 
-# the parameters and timesteps and then
-# use of solver from DiffEq
+# (1) setup the model/differential equations as a function, including the parameters and timesteps
+# (2) use of solver from DiffEq
 ​
-# 1) Lotka Volterra type model: System of equations
+# (3) Lotka Volterra type model: System of equations
 # all models take:
-# du : derivatives - will hold a vector with du/dt values
-# u : initial values - will hold a vector of abundance (u)
+# du : derivatives - will hold a vector with du/dt values (derivative - change in abundance through time)
+# u : initial values - will hold a vector of abundance (u) (abundance through time)
 # p : parameters 
 # t : time
 
@@ -43,11 +43,11 @@ function LV(du,u,p,t)
 
 ## 2) parameters, start values, times, simulation
 # initial values:
-u_init = [1.0;1.0] #we start with P = C = 1
+u_init = [1.0;1.0] #we start with P (prey) & C (predator) = 1
 # parameters:
 # Here for the parameters we could have used a vector or a dictionnary
 # but I usually chose a named tuple (similar to R lists) because it's unmutable
-# meaning that once it's created you can't change it, which makes sense in this changes
+# meaning that once it's created you can't change it, which makes sense in this
 # and also allows us to use explicit names. 
 p = (
     growthrate = 1.0   # /day, growth rate of prey 
@@ -70,7 +70,7 @@ plot(sol, ylabel = "Density", title = "Lotka-Volterra", label = ["prey" "predato
 ## Modify ingestion rate by sigmoid function of contaminant 
 ​
 # Aout is the declining sigmoid function from above
-# shift the max rate of ingestion to the 0.2 as above in example.
+# shift the max rate of ingestion to 0.2 as above in example (ingestrate - line 54).
 # as contaminant increases, ingestion decreases with dose response curve
 ​
 rrII = 0.2*Aout 
@@ -106,6 +106,7 @@ for (i,r) in enumerate(rrII) # i is the index (1:1:length(rrII)) and r is the co
     eqConc[i,2] = sol.u[end][2] 
 end
 
+# plot
 plot(rrII, eqConc
     , seriestype = [:scatter, :line]
     , label = ["" "" "prey" "predator"]
