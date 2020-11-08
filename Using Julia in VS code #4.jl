@@ -6,22 +6,20 @@
 ###################################################################################################################################################################
 # This doc follows on from "Using Julia in VS code" #1, #2 and #3 and assumes that your still working from your directory
 
-# Here we will illistrate how to use DifferentialEquation.jl to solve differential equations. In particular we are interested in how to model the effect of a contaminant on a two species Lotka Volterra like (predator and prey) system. We assume that the effect of the contaminant follows a dose response like relationship whereby increasing levels of contaminaton results in a reduced rate of ingestion. 
+# Here we will illistrate how to use DifferentialEquation.jl to solve differential equations. 
+# In particular we are interested in how to model a two species Lotka Volterra like (predator and prey) system. 
+# After that, we modify the activity to inlcude a contaminant effect on foraging
+# We assume that the effect of the contaminant follows a dose response like relationship 
+# whereby increasing levels of contaminaton results in a reduced rate of ingestion. 
 
 import Pkg
 Pkg.add("DifferentialEquations") # Installing the DifferentialEquations package
 using DifferentialEquations, Plots # Also want to use plots
 
-# build our dose response relationship
-# a declining sigmoid function ----
-# this is the basis of thinking about how alpha changes with
-# increasing contaminant (used below)
-Alpha(A) = (1-(1/(1+10^(-5*(A-0)))))
-AA = [-1:0.1:1;]
-Aout = Alpha.(AA) 
-plot(AA, Aout, xlabel = "AA", ylabel = "Aout")
+## The Core example - how to solve a system of differential equations in Julia
 
-## Core example
+# this is like using deSolve in R.
+# this code is an example of the engine being used to solve the BEFW models.
 ​
 # (1) setup the model/differential equations as a function, including the parameters and timesteps
 # (2) use of solver from DiffEq
@@ -44,6 +42,7 @@ function LV(du,u,p,t)
 ## 2) parameters, start values, times, simulation
 # initial values:
 u_init = [1.0;1.0] #we start with P (prey) & C (predator) = 1
+
 # parameters:
 # Here for the parameters we could have used a vector or a dictionnary
 # but I usually chose a named tuple (similar to R lists) because it's unmutable
@@ -69,6 +68,15 @@ plot(sol, ylabel = "Density", title = "Lotka-Volterra", label = ["prey" "predato
 
 ## Modify ingestion rate by sigmoid function of contaminant 
 ​
+# build our dose response relationship
+# a declining sigmoid function ----
+# this is the basis of thinking about how alpha changes with
+# increasing contaminant (used below)
+Alpha(A) = (1-(1/(1+10^(-5*(A-0)))))
+AA = [-1:0.1:1;]
+Aout = Alpha.(AA) 
+plot(AA, Aout, xlabel = "AA", ylabel = "Aout")
+
 # Aout is the declining sigmoid function from above
 # shift the max rate of ingestion to 0.2 as above in example (ingestrate - line 54).
 # as contaminant increases, ingestion decreases with dose response curve
