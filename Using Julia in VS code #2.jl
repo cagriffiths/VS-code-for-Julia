@@ -24,8 +24,8 @@ br = ["Pint", "of", "moonshine", "please"]
 # You can then access the members of an array using indexing"
 ar[1]
 br[3]
-# You can use some function to pre-allocate vectors wit a certain value
-# Pre-allocating vector is very helpful to speed things up in Julia
+# You can use some functions to pre-allocate vectors with a certain value
+# Pre-allocating vectors helps to speed things up in Julia
 emptyvec = zeros(10) #this create a vector of length 10 filled with 0. 
 onesvec = ones(10) #can be done with ones
 boolvec = trues(10) #or true/false (with falses(10))
@@ -60,7 +60,7 @@ for i in 1:1000
 end
 I_array
 I_array_2
-# Example using points c and d:
+# Example 2:
 tab = []
 for k in 1:4
     for j in 1:3
@@ -114,8 +114,8 @@ end
 print(dat)
 first(dat, 6) # First 6 rows
 last(dat) # Last row
-dat[2,:] # : means all columns
-dat[:,3] # or all columns
+dat[2,:] # : = all columns
+dat[:,3] # or all rows
 # you can also use 'end' as an index: 
 dat.col1[end-6:end] # this shows the last 7 elements of the col1 column
 # Alternatively, you can select columns using :name:
@@ -202,25 +202,25 @@ it needs to compile, and takes a longer time than expected. This is especially t
 The first plot you make will take some time, but it gets faster after that.
 =#
 
-# (a) Make a basic plot - there are a lot of example of the documentation that can help you (https://docs.juliaplots.org/latest/tutorial/):
+# (a) Make a basic plot - there are a lot of examples in the documentation that can help (https://docs.juliaplots.org/latest/tutorial/):
 x = 1:100
 y = rand(100)
-plot(x,y,label="bla", title = "Rubbish plot", lw = 3) # Will open a plot in a new tab
+Plots.plot(x,y,label="bla", title = "Rubbish plot", lw = 3) # Will open a plot in a new tab - using Plots.plot tells julia to your using the plotting tools in the Plots package - only needed when you've got more than one plotting extension loaded (i.e. Plots and Gadfly)
 # (b) Mutating a plot:
 z = rand(100)
 plot!(x,z,label="bla2") # You can add a second line to the plot by mutating the plot object - using !
 xlabel!("x") # adds an x axis label
 ylabel!("random") # adds a y axis label
 # (c) Changing the plotting series
-plot(x,y, title = "Rubbish scatter plot", seriestype = :scatter, label = "y") # seriestype allows you to change up the type of plot
+Plots.plot(x,y, title = "Rubbish scatter plot", seriestype = :scatter, label = "y") # seriestype allows you to change up the type of plot
 # Alternatively, for each built-in series type, there is a shorthand version:
 scatter(x, z, title = "Rubbish scatter plot 2", label = "z")
 #You can call different "series types" : 
-plot(x,y,label="bla", title = "Rubbish plot", lw = 3) # Will open a plot in a new tab
+Plots.plot(x,y,label="bla", title = "Rubbish plot", lw = 3) # Will open a plot in a new tab
 plot!(z, seriestype = [:line :scatter], lc = :orange, mc = :black, msc = :orange, label = "bla2", markershape = :diamond)
 # (d) Outputing/saving a plot
 #the savefig function saves the last plot created
-plot(x,y,label="bla", title = "Rubbish plot", lw = 3) 
+Plots.plot(x,y,label="bla", title = "Rubbish plot", lw = 3) 
 savefig("plot.png") # saves a plot using the file type detailed in the extension
 # or you can use a shorthand version (works for png, svg and PDF)
 p1 = scatter(x, z, title = "Rubbish scatter plot 2", label = "z")
@@ -234,17 +234,17 @@ png(p1,"plot2")
 
 #=
 Now we can try to do the same using Gadfly
-Gadfly can be useful to work with data frames
+Gadfly can be useful when working with data frames
 See the docs here: http://gadflyjl.org/stable/index.html
 =#
 
-using RDatasets, Gadfly
+using Gadfly, RDatasets
 # Let's start by querying a dataset: 
 crabs = dataset("MASS", "crabs") #https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/crabs.html
 # What's in this dataset?
 describe(crabs) #this gives a quick description of the data frame content
 # Now we can try plotting crabs carapace lengths by body depths: 
-# NB: Here we explicitly call Gadfly because plot is also exported by Plots, if you ha
+# NB: Here we explicitly call Gadfly because plot is also exported by Plots, if you have it loaded (same as using Plots.plot above)
 Gadfly.plot(crabs, x = :CL, y = :FL)
 #we can color by crab 'species' B is for blue crabs and O for orange
 Gadfly.plot(
@@ -271,7 +271,7 @@ end
 local_a # gives an error - ERROR: UndefVarError: local_a not defined
 A
 
-#if you want to modify a global variable with a loop, you need to use the global macro: 
+#if you want to modify a global variable within a loop, you need to use the global macro: 
 global j = 1
 for i in 1:1:5
     global j = j+1
@@ -280,14 +280,14 @@ j
 
 ## Quick tips
 # In the REPL, you can use the direction up arrow to scroll through past code
-# you can even filter by typing the first letter of a line previously executed in the REPL and then using the arrow to see it, e.g. type plo and then use the up arrow, you should see the last plot command you used 
+# You can even filter by typing the first letter of a line previously executed in the REPL and then using the arrow to see it, e.g. type plo and then use the up arrow, you should see the last plot command you used 
 # Toggle word wrap via View>Toggle Word Wrap or alt-Z
 # As in R, you can get help by typing ? and then subject matter in the REPL - for example, try ?model_parameter
-# Red wavy line under code - error in code 
+# Red wavy line under code = error in code 
 # As in R, indexing is ordered by row and then by column
 # Julia gets a bit funny about indenting - when writing a loop or a function, make sure the code enclosed in the loop or function is indented. VS code typically does this for you. 
 # You can view your current variables (similar to the top right hand panel in RStudio) by clickling on the 'Julia explorer: Julia workspace' symbol in the activity bar (final/5th symbol). You can then look at them in more detail by clicking the sideways arrow. 
-# Julia has strange aspect where if a=b, a change in b will automatically cause a change in a. For example:
+# Julia has strange a aspect where if a=b, any change in b will automatically cause a change in a. For example:
 a = [1,2,3]
 b = a
 print(b)
