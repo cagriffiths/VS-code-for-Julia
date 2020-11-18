@@ -147,7 +147,7 @@ divcd = c / d
 powcd = c^2
 ```
 
-For a complete [list of all mathematical operations see https://docs.julialang.org/en/v1/manual/mathematical-operations/index.html][https://docs.julialang.org/en/v1/manual/mathematical-operations/index.html]
+For a complete list of all mathematical operations see [https://docs.julialang.org/en/v1/manual/mathematical-operations/index.html][https://docs.julialang.org/en/v1/manual/mathematical-operations/index.html]
 
 ## Loops 
 
