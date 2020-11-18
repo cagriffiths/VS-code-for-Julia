@@ -4,3 +4,8 @@ out_objects/
 plot.png
 plot2.png
 .DS_store
+jl_*/
+*.aux
+*.log
+*.tex
+.localized
