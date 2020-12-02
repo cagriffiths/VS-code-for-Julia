@@ -150,8 +150,9 @@ You should see the following in the REPL (the only difference might be your proj
 
 ```julia; eval = false
 (JuliaTuto) pkg> st
-    Status `~/projects/VS-code-for-Julia/Project.toml`
-  [9b49b652] BioEnergeticFoodWebs v1.1.2 #fix_rates_normalization (https://github.com/PoisotLab/BioEnergeticFoodWebs.jl.git)
+Status `~/Desktop/Julia - VS code - how to/Project.toml`
+  [9b49b652] BioEnergeticFoodWebs v1.1.2 `https://github.com/PoisotLab/BioEnergeticFoodWebs.jl.git#fix_rates_normalization`
+  [336ed68f] CSV v0.7.10
   [a93c6f00] DataFrames v0.21.8
   [0c46a032] DifferentialEquations v6.15.0
   [31c24e10] Distributions v0.23.8
@@ -161,7 +162,7 @@ You should see the following in the REPL (the only difference might be your proj
   [91a5bcdd] Plots v1.6.12
   [ce6b1742] RDatasets v0.6.10
   [44d3d7a6] Weave v0.10.6
-  [8bb1440f] DelimitedFiles 
-  [9a3f8284] Random 
+  [8bb1440f] DelimitedFiles
+  [9a3f8284] Random
 ```
 
