@@ -1,127 +1,136 @@
 ---
 title: Julia in VS Code \#1 \\ Getting started 
-author: Chris Griffiths, Eva Delmas
+author: Chris Griffiths \& Eva Delmas
 date: \today
 ---
 
 This document covers the following:
-- Installing Julia and Visual Studio Code
-- Adding extensions - i.e. setting up your computer
-- Julia's package manager: installing and loading packages
+- Installing Julia and Visual Studio Code on your computer
+- Adding extensions - i.e. setting up Visual Studio Code to run Julia
+- Julia's package manager (`Pkg`): installing and loading packages
 
 First off, check out the [Introductory videos on the visual studio webpage](https://code.visualstudio.com/docs/getstarted/introvideos). 
 These will help explain some of the terminology used below. 
 They'll also show you how to change the colour theme and icon symbols (by far the most important part of any coding tutorial...)
 
-# Download and install Julia and VS Code
+# Download and install
 
 1. Julia
 
-Follow the platform-specific instruction on [this page](https://julialang.org/downloads/)
-to dowload and install Julia (current stable release). 
+Navigate to [this page](https://julialang.org/downloads/) and follow the platform-specific instructions to dowload and install Julia (we recommend installing the current stable release). 
 
 2. Visual Studio Code
 
-Go to [this page](https://visualstudio.microsoft.com/) to dowload and install
-VSCode. 
+Navigate to [this page](https://visualstudio.microsoft.com/) to dowload and install
+VS Code. 
 
-# Setting up VSCode 
+# Setting up VS Code 
 
-Note - VSCode extensions are higher level packages that allow you to use different coding languages, 
-edit your VS code themes and icons, or provide helpful applications like spell checker or Bracket 
-Pair Colorizer (colours pairs of brackets)
+VS Code is a free source-code editor, allowing you to code in multiple coding languages all from a platform that is completely customisable to the user. This flexibility is great but it does mean that you need to spend time telling VS Code what it is you want to do and how. This is where extensions come in; extensions are higher level packages that permit the use of a given coding language like Julia, edit your themes and icons, and provide helpful applications like spell checker or Bracket 
+Pair Colorizer. 
 
-- Open VSCode
-- Install the Julia extension in VSCode (only need to do this once)
-    - navigate to the marketplace (fourth symbol down in the activity bar - vertical panel on the left)
-    - search for Julia
-    - install [Julia](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia), this extension provides support for the Julia programming language.
-    - install [Julia Formatter](https://marketplace.visualstudio.com/items?itemName=singularitti.vscode-julia-formatter) (this will help you write clean code that are easy to read) 
-    - there are **many** extensions that can make your life easier, explore the marketplace for extensions that can help you with pdf, csv files, etc. You can do this later, when you need them.
+To install Julia in VS Code do the following (you only need to do this once):
+- open VS Code (you'll see the welcome page)
+- navigate to the marketplace (fourth symbol down in the activity bar - vertical panel on the lefthand side of the screen)
+- search for Julia
+- install [Julia](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia), this extension provides support for the Julia programming language
+- while you're there, also search for and install [Julia Formatter](https://marketplace.visualstudio.com/items?itemName=singularitti.vscode-julia-formatter), this extension will help you write clean code that is easier to read
+
+There are **many** extensions that can make your life easier, visit the marketplace for extensions that can help you with pdfs, markdown and csv files, etc. There are also several useful extensions for GitHub linkage (we'll mentioned a few later on in this tutorial). 
 
 ## Projects 
 
-A good practice to adopt is to always work in a contained project environment, because we usually want different contexts 
-(package versions, working directory, location of the data folder, etc.) for different projects. 
+A good practice to adopt when coding is to always work in a contained project environment as each unique project may require a different setup (e.g. packages, package versions, working directories, data locations, etc.).  
 
-- Start by creating a toy folder, name it as you want (we will use JuliaTuto for the examples, simply replace this name by the one you chose).
-To open VSCode in a project (e.g. here JuliaTuto):
+To set up a project in VS Code, start by: 
+- Creating a folder at a location of your choosing (e.g. within your Documents folder). We will name our folder 'JuliaTuto' for the examples that follow but please feel free to replace this name as you see fit.
 
+To open your new project in VS Code (e.g. here JuliaTuto):
 - click on the explorer symbol (top symbol on the activity bar) and click Open Folder
-- Navigate to the JuliaTuto folder and click open - this becomes the location of your working directory (same as an RProject). Your directory will appear as a vertical pane on the left hand side of the screen. 
+- navigate to the JuliaTuto folder in your files and click open
+- this folder then becomes the location of your working directory (same as when using an RProject in R)
+- after clicking open, the contexts of your directory will appear as a vertical pane on the left hand side of the screen
 
-You can then create a new file (a script) using (cmd-N, File>New File or left click>New File in the directory) and save it with .jl extension (tells VS code you want to use the Julia language)
+The next step is to create a new file (a script) in your directory:
+- do this by using cmd-N, File>New File or by left clicking>New File within the directory pane
+- name your script as your see fit but please rememeber to include the .jl file extension (e.g. JuliaTuto.jl)
+- the .jl file extension tells VS Code you want to use the Julia programming language 
+- to save your script at any time use cmd-S or File>Save  
 
-Note: you can also right-click on the folder (in Finder, Windows file explorer or Linux nautilus) and select Open with -> Other -> VSCode. Or if you are a command-line addict, `cd` into the directory and type `code .` to open VSCode (needs [to be activated for Mac](https://code.visualstudio.com/docs/setup/mac)).
+Alternatively, you can also open a project in VS Code by right-clicking on your folder (in Finder, Windows file explorer or Linux nautilus) and selecting Open with -> Other -> VS Code. Or if you are a command-line addict, you can `cd` into the directory and type `code .` to open VS Code (this needs [to be activated for Mac](https://code.visualstudio.com/docs/setup/mac)).
 
-Now, open a new Julia REPL (stands for - read, execute, print and loop)
-the REPL is like the console in R.  It's VSCodes using Julia for a brain
-do this by typing Alt-J Alt-O or by typing Start REPL in the command palette (accessed using F1, cmd-shift-P or View>Command Palette). 
+Now that you have an active project and a new script file you can open a new Julia REPL (stands for - read, execute, print and loop). The REPL is like the console in R and is where the magic happens. In Eva's words, it's VS Code's way of using Julia for a brain. To do this you type Start REPL in the command palette (accessed using F1, cmd-shift-P or View>Command Palette). The command palette will appear as a drop down menu with a search function at the top of the page.  
 
-Type `print(Hello world)` in your new script, and execute using Ctrl-Enter.
+Next, type `print("Hello world")` in your new script, and execute (run) using Ctrl-Enter. If you've done all of the above correctly, `Hello world` should print in the REPL. 
 
 # Julia package manager 
 
-For an introduction to the package manager, see [the documentation](https://julialang.github.io/Pkg.jl/v1/). 
+For an introduction to the Julia package manager, see [the documentation](https://julialang.github.io/Pkg.jl/v1/). 
 The "Background and design" section provides useful details if you want to 
 understand more about its originality compared to other languages and how it works. 
 
 ## Projet and Manifest files 
 
-We mentionned above how we may want to work within an environment specific to each project. The Julia package manager 
+We mentioned above that it is good practicce to work within an environment specific to each project. The Julia package manager (`Pkg`) 
 allows you to do that easily: *Unlike traditional package managers, which install and manage a single global set of packages, 
 Pkg is designed around environments: independent sets of packages that can be local to an 
-individual project or shared and selected by name* (from the documentation).  
+individual project or shared and selected by name* (text taken directly from [the documentation](https://julialang.github.io/Pkg.jl/v1/)).  
 
-The environment is stored in two files: 
-- Project.toml stores the list of package you have installed, with their version
-- Manifest.toml does the same thing but for all the packages dependencies
-You don't have to create or modify these files, they will be automatically created once you have activated your project, when you install your first package. 
+The project environment is stored in two files: 
+- `Project.toml` - stores a list of packages that have been installed and their versions (very useful when sharing code as any user can see exactly what version of a package has been used)
+- `Manifest.toml` - does the same thing but for all the package dependencies (other packages that are essential, or form functional parts, of the package you want to use) 
+You don't have to create or modify these two files, they are automatically created once you have activated your project and installed your first package. 
 
 1. Using the package manager
 There are two ways to use the package manager (`Pkg`)
-- from the REPL:
-    - open the REPL
-    - type `]` -> you see that instead of seeing `julia>` you now see `(JuliaTuto) pkg>`, indicating that all the package that you now install (or update) will be installed (or updated) in this specific project.
-    - (exit the REPL package manager by using the backspace)
-- using `Pkg`, this is useful when you want to use the package manager from your script:
-    - type `import Pkg` 
-    - now you can use the package manager commands by typing `Pgk.function()` 
+- directly from the REPL:
+    - navigate to the REPL
+    - type `]`
+    - you will see that instead of seeing `julia>` you now see `(your-project-name) pkg>`, indicating that all the packages that you now install (or update) will be installed (or updated) within this specific project
+    - to exit the REPL package manager use the backspace
+- using `Pkg`, this is useful when you want to use the package manager directly from your script:
+    - type `import Pkg` and execute using Ctrl-Enter
+    - you can then add, remove and update packages from your script using the build in Pkg functions e.g. `Pkg.add()`, `Pkg.remove()` or `Pkg.update()`
 
-There are two ways to check that you are actually working into the right environment: 
-- check/click the 'Julia env:...' on the bottom left of your screen, it should match your folder name
-- enter the package manager by typing ] in the Julia REPL, you should see '(your-folder-name) pkg>' instead of 'julia>'. Exit it using backspace.
+There are two ways to double check that you are actually working within your project: 
+- check/click the 'Julia env:...' on the bottom of your screen (blue bar), it should match your project name
+- enter the package manager by typing `]` in the Julia REPL, you should see `(your-project-name) pkg>` instead of `julia>`. Again, exit the package manager using backspace.
 
 2. Activating a project
-- Activate `] activate .` or `Pkg.activate(".")`
-    - activating is done automatically in VScode, activating a directory makes it the "active project" which package operations manipulate. 
-    - note: the dot stands for the current working directory (`pwd` in julia) so you can also type `Pkg.activate("path/to/folder/JuliaTuto")` or `Pkg.activate(pwd())`
+- activate your project by typing `] activate .` in the REPL or by using `Pkg.activate(".")` in the script
+- activation is done automatically in VS Code, however, it remains an important point as activation ensures that your project is 'active' and can use package operations
+Note: the dot `.` stands for the current working directory. You could also use `pwd` and activate using `Pkg.activate(pwd())` or `Pkg.activate("path/to/folder/JuliaTuto")`. 
 
 3. Working on someone else's project
-If you are working on someone else's project (or on your project but from a different computer), you want to use the same package versions, so after activating the directory, you can install all the packages and the dependencies they referred to in their Project and Manifest files by typing either `] instantiate` from the REPL or `Pkg.instantiate()`. 
+If you are working on someone else's project (or on your project but from a different computer), you will want to use the same packages and package versions. To do this, first activate the directory (see point 2) and then install all the packages and dependencies stored in the `Project.toml` and `Manifest.toml` files by typing either `] instantiate` in the REPL or `Pkg.instantiate()` in the script. This is incredibly useful as it means you can ensure that you're working from an identical project environment with a single command. 
 
 ## Package manager
 
-Now that we are all set up, we are going to try to install a package, to check the environment status and to remove the package. 
+Now that we are all set up, we are going to install a package, check the project's status and remove a package. 
 
-- type `] add Plots` in the REPL (or `Pkg.add("Plots")` in you script and execute using Ctrl-Enter) -> you just added the Plots package (equivalent to Base plots in R) to your project. This is the equivalent to R `install.packages` function. 
-- type `] st` in the REPL (this is the status command) -> You should see something like:
+- type `] add Plots` in the REPL (or `Pkg.add("Plots")` in your script and execute using Ctrl-Enter)
+- you just installed the Plots package (equivalent to Base plots in R) to your project
+- adding a package in this manner is the equivalent to using `install.packages()` function in R
+- type `] st` in the REPL (this is the status command and prints the contents of your `Project.toml` file) 
+- you should see something like:
 
 ```julia; eval = false
 (JuliaTuto) pkg> st
-    Status `~/projets/JuliaTuto/Project.toml`
+    Status `~/projects/JuliaTuto/Project.toml`
     [91a5bcdd] Plots v1.6.12
 ```
 
-- to use an installed package (e.g. Plots), type `using Plots` This imports all the functions of the Plots package. 
-- you can update package versions using either `] up` or `Pkg.update()` (this can be done for a specific package: `] up Plots`, as you have installed the latest version, this will likely return `[no changes]`)
-- type `] rm Plots` in the REPL or `Pkg.rm("Plots")` in your script and execute -> you removed the Plots package from your project
-- now if you look at your directory status using `st` the list should be empty. 
+- to use an installed package (e.g. Plots), type `using Plots` in the script and execute
+- this imports all the functions of the Plots package
+- `using` is identical to `library()` or `required()` in R
+- you can update packages using either `] up` (or `Pkg.update()`)
+- updating can be done globally for all packages or for a specific package e.g. `] up Plots`
+- as you have just installed the latest version of Plots, `] up Plots` will likely return `[no changes]`
+- to remove a package from your project, type `] rm Plots` in the REPL (or `Pkg.rm("Plots")` in your script and execute)
+- now if you look at your directory status using `st` the list should be empty
 
-We have tested these tutorials with a specific list of packages. So downloads the Project and Manifest files from [this link: https://github.com/cagriffiths/VS-code-for-Julia][https://github.com/cagriffiths/VS-code-for-Julia]
-and replace your Manifest and Project with these files. Then activate (if not already done) and instantiate (see below). 
-
-# Script
+We have tested these tutorials with a specific list of packages. Consequently, we recommend you download the `Project.toml` and `Manifest.toml` files from [this link](https://github.com/cagriffiths/VS-code-for-Julia/)
+and replace your `Manifest.toml` and `Project.toml` with these files. Then activate (if you've not done so already) and instantiate (pop back a few steps for a recap if needed). Here's a script to this from VS Code using Julia: 
 
 ```julia; eval = false
 #import the functions from the Pkg manager
@@ -133,16 +142,17 @@ download("https://raw.githubusercontent.com/cagriffiths/VS-code-for-Julia/main/P
 download("https://raw.githubusercontent.com/cagriffiths/VS-code-for-Julia/main/Manifest.toml", "Manifest.toml")
 #install the packages necessary for these tutorials
 Pkg.instantiate()
-#check the pkg status
+#check the pkg status (same as using st)
 Pkg.status()
 ```
 
-This is what you should see: 
+You should see the following in the REPL (the only difference might be your project name):
 
 ```julia; eval = false
 (JuliaTuto) pkg> st
-    Status `~/projets/VS-code-for-Julia/Project.toml`
-  [9b49b652] BioEnergeticFoodWebs v1.1.2 #fix_rates_normalization (https://github.com/PoisotLab/BioEnergeticFoodWebs.jl.git)
+Status `~/Desktop/Julia - VS code - how to/Project.toml`
+  [9b49b652] BioEnergeticFoodWebs v1.1.2 `https://github.com/PoisotLab/BioEnergeticFoodWebs.jl.git#fix_rates_normalization`
+  [336ed68f] CSV v0.7.10
   [a93c6f00] DataFrames v0.21.8
   [0c46a032] DifferentialEquations v6.15.0
   [31c24e10] Distributions v0.23.8
@@ -152,6 +162,7 @@ This is what you should see:
   [91a5bcdd] Plots v1.6.12
   [ce6b1742] RDatasets v0.6.10
   [44d3d7a6] Weave v0.10.6
-  [8bb1440f] DelimitedFiles 
-  [9a3f8284] Random 
+  [8bb1440f] DelimitedFiles
+  [9a3f8284] Random
 ```
+

@@ -284,6 +284,7 @@ j
 # Toggle word wrap via View>Toggle Word Wrap or alt-Z
 # As in R, you can get help by typing ? and then subject matter in the REPL - for example, try ?model_parameter
 # Red wavy line under code = error in code 
+# Blue wavy line under code = possible error in code
 # As in R, indexing is ordered by row and then by column
 # Julia gets a bit funny about indenting - when writing a loop or a function, make sure the code enclosed in the loop or function is indented. VS code typically does this for you. 
 # You can view your current variables (similar to the top right hand panel in RStudio) by clickling on the 'Julia explorer: Julia workspace' symbol in the activity bar (final/5th symbol). You can then look at them in more detail by clicking the sideways arrow. 

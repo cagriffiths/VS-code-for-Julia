@@ -9,3 +9,12 @@ jl_*/
 *.log
 *.tex
 .localized
+Doc1_GettingStarted.aux
+Doc1_GettingStarted.log
+Doc1_GettingStarted.out
+Doc1_GettingStarted.tex
+Doc2_BasicJuliaCommands.aux
+Doc2_BasicJuliaCommands.log
+Doc2_BasicJuliaCommands.out
+Doc2_BasicJuliaCommands.tex
+testing_Atlantic cod_rates.txt
