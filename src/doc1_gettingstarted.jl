@@ -1,9 +1,18 @@
----
-title: Julia in VS Code \#1 \\ Getting started 
-author: Chris Griffiths \& Eva Delmas
-date: \today
----
+### A Pluto.jl notebook ###
+# v0.12.18
 
+using Markdown
+using InteractiveUtils
+
+# ╔═╡ 45396dec-4eb4-11eb-3bd5-b71f3a3e1a22
+md"
+# Getting started 
+
+*by Chris Griffiths, Eva Delmas and Andrew Beckerman, Dec. 2020.*
+"
+
+# ╔═╡ 1e32e4fc-4eb5-11eb-1053-f73699c1f8d0
+md"""
 This document covers the following:
 - Installing Julia and Visual Studio Code on your computer
 - Adding extensions - i.e. setting up Visual Studio Code to run Julia
@@ -12,7 +21,10 @@ This document covers the following:
 First off, check out the [Introductory videos on the visual studio webpage](https://code.visualstudio.com/docs/getstarted/introvideos). 
 These will help explain some of the terminology used below. 
 They'll also show you how to change the colour theme and icon symbols (by far the most important part of any coding tutorial...)
+"""
 
+# ╔═╡ 27fe2e06-4eb5-11eb-0ba3-07964c71171c
+md"""
 # Download and install
 
 1. Julia
@@ -24,6 +36,10 @@ Navigate to [this page](https://julialang.org/downloads/) and follow the platfor
 Navigate to [this page](https://visualstudio.microsoft.com/) to dowload and install
 VS Code. 
 
+"""
+
+# ╔═╡ 31cd2b80-4eb5-11eb-225e-33802dfc5921
+md"""
 # Setting up VS Code 
 
 VS Code is a free source-code editor, allowing you to code in multiple coding languages all from a platform that is completely customisable to the user. This flexibility is great but it does mean that you need to spend time telling VS Code what it is you want to do and how. This is where extensions come in; extensions are higher level packages that permit the use of a given coding language like Julia, edit your themes and icons, and provide helpful applications like spell checker or Bracket 
@@ -38,6 +54,10 @@ To install Julia in VS Code do the following (you only need to do this once):
 
 There are **many** extensions that can make your life easier, visit the marketplace for extensions that can help you with pdfs, markdown and csv files, etc. There are also several useful extensions for GitHub linkage (we'll mentioned a few later on in this tutorial). 
 
+"""
+
+# ╔═╡ 3c7f1fca-4eb5-11eb-0e7b-71824ff2d6fb
+md"""
 ## Projects 
 
 A good practice to adopt when coding is to always work in a contained project environment as each unique project may require a different setup (e.g. packages, package versions, working directories, data locations, etc.).  
@@ -63,6 +83,13 @@ Now that you have an active project and a new script file you can open a new Jul
 
 Next, type `print("Hello world")` in your new script, and execute (run) using Ctrl-Enter. If you've done all of the above correctly, `Hello world` should print in the REPL. 
 
+"""
+
+# ╔═╡ 4cec8ef6-4eb5-11eb-0433-d317d947169c
+print("Hello world!")
+
+# ╔═╡ 5758fdfe-4eb5-11eb-0b1c-75ced9a8448a
+md"""
 # Julia package manager 
 
 For an introduction to the Julia package manager, see [the documentation](https://julialang.github.io/Pkg.jl/v1/). 
@@ -71,7 +98,7 @@ understand more about its originality compared to other languages and how it wor
 
 ## Projet and Manifest files 
 
-We mentioned above that it is good practicce to work within an environment specific to each project. The Julia package manager (`Pkg`) 
+We mentioned above that it is good practice to work within an environment specific to each project. The Julia package manager (`Pkg`) 
 allows you to do that easily: *Unlike traditional package managers, which install and manage a single global set of packages, 
 Pkg is designed around environments: independent sets of packages that can be local to an 
 individual project or shared and selected by name* (text taken directly from [the documentation](https://julialang.github.io/Pkg.jl/v1/)).  
@@ -101,12 +128,19 @@ There are two ways to double check that you are actually working within your pro
 - activation is done automatically in VS Code, however, it remains an important point as activation ensures that your project is 'active' and can use package operations
 Note: the dot `.` stands for the current working directory. You could also use `pwd` and activate using `Pkg.activate(pwd())` or `Pkg.activate("path/to/folder/JuliaTuto")`. 
 
-3. Working on someone else's project
-If you are working on someone else's project (or on your project but from a different computer), you will want to use the same packages and package versions. To do this, first activate the directory (see point 2) and then install all the packages and dependencies stored in the `Project.toml` and `Manifest.toml` files by typing either `] instantiate` in the REPL or `Pkg.instantiate()` in the script. This is incredibly useful as it means you can ensure that you're working from an identical project environment with a single command. 
+3. Working on someone else's project If you are working on someone else's
+project (or on your project but from a different computer), you will want to
+use the same packages and package versions. To do this, first activate the
+directory (see point 2) and then install all the packages and dependencies
+stored in the `Project.toml` (and `Manifest.toml`) by typing either `]
+instantiate` in the REPL or `Pkg.instantiate()` in the script. This is
+incredibly useful as it means you can ensure that you're working from an
+identical project environment with a single command.
 
 ## Package manager
 
-Now that we are all set up, we are going to install a package, check the project's status and remove a package. 
+Now that we are all set up, we are going to install a package, check the
+project's status and remove a package.
 
 - type `] add Plots` in the REPL (or `Pkg.add("Plots")` in your script and execute using Ctrl-Enter)
 - you just installed the Plots package (equivalent to Base plots in R) to your project
@@ -114,12 +148,17 @@ Now that we are all set up, we are going to install a package, check the project
 - type `] st` in the REPL (this is the status command and prints the contents of your `Project.toml` file) 
 - you should see something like:
 
+
 ```julia; eval = false
 (JuliaTuto) pkg> st
     Status `~/projects/JuliaTuto/Project.toml`
     [91a5bcdd] Plots v1.6.12
 ```
 
+"""
+
+# ╔═╡ 9beac4dc-4eb5-11eb-1292-d550ce33df45
+md"""
 - to use an installed package (e.g. Plots), type `using Plots` in the script and execute
 - this imports all the functions of the Plots package
 - `using` is identical to `library()` or `required()` in R
@@ -166,3 +205,14 @@ Status `~/Desktop/Julia - VS code - how to/Project.toml`
   [9a3f8284] Random
 ```
 
+"""
+
+# ╔═╡ Cell order:
+# ╟─45396dec-4eb4-11eb-3bd5-b71f3a3e1a22
+# ╟─1e32e4fc-4eb5-11eb-1053-f73699c1f8d0
+# ╟─27fe2e06-4eb5-11eb-0ba3-07964c71171c
+# ╟─31cd2b80-4eb5-11eb-225e-33802dfc5921
+# ╟─3c7f1fca-4eb5-11eb-0e7b-71824ff2d6fb
+# ╠═4cec8ef6-4eb5-11eb-0433-d317d947169c
+# ╟─5758fdfe-4eb5-11eb-0b1c-75ced9a8448a
+# ╟─9beac4dc-4eb5-11eb-1292-d550ce33df45

@@ -56,7 +56,7 @@ for h in 1:reps # Loop over networks
         for j in 1:length(K)
             
             # Create model parameters object:
-            p = model_parameters(A, α = a[i], K = K[j], productivity = :competitive) # here you specify any non-default parameters of interest and provide the network matrix (A)
+            p = model_parameters(A, α = a[i], K = [K[j]], productivity = :competitive) # here you specify any non-default parameters of interest and provide the network matrix (A)
             # The possible arguments that can be passed into model_parameters are many, make sure you type ?model_parameters in the REPL and review the text, alternatively visit: 
             # NOTE - In the MEE paper, the following argument is used (productivity = :competitive) to specify that species compete with themselves at a rate of 1.0, and with one another at a rate of α - unfortuntely, this is producing a strange error at the moment - we'll look into it.
 
