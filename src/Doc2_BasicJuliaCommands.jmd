@@ -4,7 +4,7 @@ author: Chris Griffiths \& Eva Delmas
 date: \today
 ---
 
-This document follows on from "Using Julia in VS Code #1" and assumes that you're still working in your active project. 
+This document follows on from "Julia in VS Code #1" and assumes that you're still working in your active project. 
 
 This document covers the following:
 - Arrays and Matrices
