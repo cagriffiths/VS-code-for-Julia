@@ -4,234 +4,283 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ be48ce4c-4164-11eb-1c2a-33a950344740
-using DifferentialEquations, Plots
+# ╔═╡ 58837362-4ea9-11eb-203b-c1ddc9983e1c
+using Plots, DataFrames, Distributions, Random, EcologicalNetworks, BioEnergeticFoodWebs, DelimitedFiles, CSV, JLD2
 
-# ╔═╡ 0f899f22-4163-11eb-19e5-63175fab4bf5
-md"# Differential Equations with Julia
+# ╔═╡ c0ebcd72-4185-11eb-1f7a-495100d90da7
+md"# Intro to BioEnergeticFoodWebs
 
 *by Chris Griffiths, Eva Delmas and Andrew Beckerman, Dec. 2020.*"
 
-# ╔═╡ f316e6b4-4163-11eb-0340-e92f9ace2386
-md"This tutorial is adapted from a R script provided by Andrew Beckerman. 
-
-This doc follows on from 'Using Julia in VS code' #1, #2 and #3 and assumes that your still working from your directory.
-
-Here we will illustrate how to use `DifferentialEquation.jl` to solve differential equations. In particular we are interested in how to model a two species Lotka Volterra like (predator and prey) system. After that, we modify the activity to inlcude a contaminant effect on foraging. We assume that the effect of the contaminant follows a dose response like relationship whereby increasing levels of contaminaton results in a reduced rate of ingestion."
-
-# ╔═╡ 82967eda-4164-11eb-2b6a-dde5704f3497
-md"## Packages
-
-For this tutorial we will need two packages: 
-- `DifferentialEquations` to solve the differential equations (same 'engine' that the one being used for the `BioEnergeticFoodWebs` model)
-- `Plots` to visualise the results.
-
-This will be very similar to using deSolve in R."
-
-# ╔═╡ eed95432-4164-11eb-3a2b-637217b14f49
-md"## The model"
-
-# ╔═╡ 10721016-4165-11eb-3724-4f656be470c7
-md"This is a simple Lotka Volterra predator prey model
-- Resource dynamics: $\frac{dR}{dt} = r R (1-\frac{R}{K}) - \alpha R C$
-- Consumer dynamics: $\frac{dC}{dt} = e \alpha R C - m C$
-
-where $R$ and $C$ are the abundances of the resource and consumer respectively, $r$ is the resource growth rate, $K$ is the system carrying capacity, $\alpha$ is the ingestion rate, $e$ is the assimilation efficiency and $m$ is the consumer mortality rate.
-
-There are 3 major steps involved in solving a differential equation in Julia: 
-1. Define a function for your system of differential equations (that is, transform the above equations in a function formatted in a way that it can be read by the solver), this function tell the solver how your variables (here $R$ and $C$ change over time)
-2. Define the problem. The problem is defined by the function, potentially the parameters (here $r$, $\alpha$, $e$ and $m$), the initial condition and the time constraint. In this step you provide all the details the solbver will need to find the solution for a particular case.
-3. Solve!
-"
-
-# ╔═╡ e537957a-4168-11eb-13f0-d969b7397595
+# ╔═╡ 02d42d26-4ea9-11eb-0037-29e78216697e
 md"
-### Step 1. Define the function
+This doc follows on from 'Using Julia in VS code #1' and 'Using Julia in VS code #2' and assumes that your still working from your directory.
 
-All models take:
-- `du` : derivatives - will hold a vector with du/dt values (derivative - change in abundance through time)
-- `u` : variables values through time - will hold a vector of abundance (u) (abundance through time)
-- `p` : parameters 
-- `t` : time
+Before we start, make a folder in the directory called out_objects (right click>New Folder)
+
+This doc aims to introduce the BioEnergeticFoodWebs package and recreate the first example in [Delmas et al. 2017 MEE](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713). Check out the paper before we start.
 "
 
-# ╔═╡ 19fc1444-4168-11eb-1198-a351b833a5e0
-function LV(du,u,p,t)
-    GrowthP = p.growthrate * u[1] * (1 - u[1]/p.K)# logistic resource growth
-    IngestC = p.ingestrate * u[1] * u[2] # type I FR by consumer on resource
-    MortC = p.mortrate * u[2] # density independent mortality of consumer
-    du[1] = GrowthP - IngestC
-    du[2] = p.assimeff * IngestC - MortC
-  end
+# ╔═╡ 4d456ac8-4ea9-11eb-24be-3181d81cea4e
+md"## Load the packages"
 
-# ╔═╡ 0f9cd950-416a-11eb-2d48-6b5f3e4a6f01
+# ╔═╡ 6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
 md"
-### Step 2. Define the problem
-
-- **Parameters**:  
-Here we could have used another object type to store the parameters such as a vector or a dictionnary but I usually chose a named tuple (similar to R lists) because it's unmutable (meaning that the values it holds can't be changed), which makes sense in this situation and also allows us to use explicit names. 
+- `Plots` for... plotting
+- `DataFrames` for using and manipulating data frames
+- `Distributions` to define various distributions
+- `Random` for added randomness (and for setting the seed) 
+- `EcologicalNetworks` for building, manipulating and analysing food webs
+- `BioEnergeticFoodWebs` for simulatimng biomass dynamics in food webs
+- `DelimitedFiles` for reading and writing delimited files 
+- `CSV` for reading and writing CSV
+- `JLD2` for saving and loading Julia object in their native format
 "
 
-# ╔═╡ 7b807ffc-416a-11eb-1af2-e929f50f7286
-p = (
-    growthrate = 1.0   # /day, growth rate of prey 
-    , ingestrate = 0.2 # /day, rate of ingestion
-    , mortrate = 0.2   # /day, mortality rate of consumer
-    , assimeff = 0.5   # -, assimilation efficiency
-    , K = 10           # mmol/m3, carrying capacity
-    )
+# ╔═╡ 38e8575e-4eaa-11eb-2843-cbefb55fb1f9
+md"Let's set a random seed for reproducibility"
 
-# ╔═╡ 852c1816-416a-11eb-3dfb-7bf3c3625ee1
+# ╔═╡ 44e9c512-4eaa-11eb-2a1a-53b024da1311
+Random.seed!(21)
+
+# ╔═╡ e20123b4-4ea9-11eb-3e7c-570c8c04e3ec
 md"
-- **Time span**
+## Reproduce figure 1
+
+The aim of this first example is to investigate the effect of increasing the carrying capacity of the resource (K) on food web diversity, also we're going to vary alpha (the amount of interspecific competition relative to intraspecific competition) and repeat the simulations 5 times (with 5 different food web networks). See [figuer 1 of the paper](https://besjournals.onlinelibrary.wiley.com/cms/asset/bd3b7b2a-4528-47d7-9f9b-57af19e2c0c0/mee312713-fig-0001-m.png).
+
+First, we want to define the experimental design: 
 "
 
-# ╔═╡ 9bb650f6-416a-11eb-27dc-b7acedc26b0f
-tspan = (0.0,100.0) #you have to use a Pair (tuple with 2 values) of floating point numbers.
+# ╔═╡ 76a28a94-4eaa-11eb-3677-0bce632c9572
+# create arrays for alpha and K
+a = [0.92, 1.0, 1.08] # Alpha array
+# 0.92 = promotes coexistence of producer species through "facilitation"
+# 1.0 = Neutral 
+# 1.08 = promotes competitive exclusion among producer species
 
-# ╔═╡ b5b59912-416a-11eb-26ac-5bcbdbed74da
-md"
-- **Initial values**
+# ╔═╡ af85ded0-4eaa-11eb-0434-df7f39a2172a
+K = exp10.(range(-1, 1, length=10)) # K array - log scale from 0.1 to 10
 
-We start with $R = C = 1$
-"
+# ╔═╡ bc148726-4eaa-11eb-103e-0d40e15d7b95
+reps = 5 # Number of unique food web networks
 
-# ╔═╡ cddb48ac-416a-11eb-3ecd-d14bcaf14bb9
-u0 = [1.0; 1.0] #this needs to be an array
+# ╔═╡ bf4f56be-4eaa-11eb-1487-f1747aab8d4e
+md"Then, we create a data frame to store the outputs"
 
-# ╔═╡ 67a6b9f0-416c-11eb-1819-753421406b22
-md"
-- **Formally define the problem**
-"
+# ╔═╡ cec73ec2-4eaa-11eb-223d-c3f6707a8ba3
+df = DataFrame(alpha = [], K = [], network = [], diversity = [], stability = [], biomass = [])
 
-# ╔═╡ 76195ee0-416c-11eb-03f9-e9d7733872b2
-prob = ODEProblem(LV, u0, tspan, p)
+# ╔═╡ d332dcee-4eaa-11eb-0cf5-33bd128825cd
+md"If you have not already created the `out_objects` folder, creae it now by using:"
 
-# ╔═╡ 8b6156c2-416c-11eb-1f01-7fcafd014e27
-md"### Step 3. Solve
+# ╔═╡ f1213a72-4eaa-11eb-2117-49e624afa4fe
+mkdir("out_objects/")
 
-Here we use the default algorithm because it's a simple problem but there are many you can use. Check the `DifferentialEquations.jl` [documentation](https://diffeq.sciml.ai/v2.0/) for more informations."
+# ╔═╡ f9545abc-4eaa-11eb-3ef5-a7c1f1d61b62
+md"Now we generate our 5 food webs using [the niche model](https://www.nature.com/articles/35004572?cacheBust=1510239451067). Each food web has 20 species and a [connectance](https://en.wikipedia.org/wiki/Ecological_network) of 0.15"
 
-# ╔═╡ cbc0d5c6-416c-11eb-002d-c3c826aefe93
-sol = solve(prob)
+# ╔═╡ 5a71c630-4eac-11eb-3acd-b173c3cae180
+global networks = [] #this array will store the generated food webs
 
-# ╔═╡ f5edc520-416c-11eb-3547-41c229104d1e
-md"This gives 2 objects: `sol.t` and `sol.u` that respectively store the time steps and the variables values through time. Let's have a look."
-
-# ╔═╡ 169ab594-416d-11eb-2e5b-df6c65717a0b
-md"## Visualise the outputs"
-
-# ╔═╡ 1fd1e8a8-416d-11eb-1c15-973a12fee426
-plot(sol
-	, linestyle = [:dash :dot]
-	, labels = ["Prey" "Predator"]
-	, c = :black
-	, lw = 2
-	, ylabel = "Abundance", xlabel = "Time") 
-
-# ╔═╡ 368947a8-416d-11eb-29a9-3b7508eb7c13
-md"## Let's do an experiment
-
-This is an example of how we can do an experiment with a model.
-The idea is that you create a gradient of some environmental variable like a contaminant or temperature. This gradient can be linear - like temperature at 0, 10, 20 and 30 degrees, or it could have some pattern - it might affect a parameter like foraging in a particular way for example, foraging rate may decline sigmoidally with a contaminant because of the way dose-response curves work.
-
-This example describes that, with the model above
-
-We modify ingestion rate by sigmoid function of contaminant by building our dose response relationship (a declining sigmoid function). 
-
-$\alpha(d) = 1 - \frac{1}{1+10^{-5d}}$
-
-where $\alpha$ is the still the ingestion rate from the Lotka Volterra model defined above and $d$ is the contaminant dose.
-"
-
-# ╔═╡ e2955b28-416e-11eb-2b27-ed9d10bc166d
-# First we define the dose-response function
-alpha(d) = (1-(1/(1+10^(-5*(d)))))
-
-# ╔═╡ 902b9098-416f-11eb-30ef-271d762f3c9c
-# Then the range of dose values
-dose_range = [-1:0.1:1;]
-
-# ╔═╡ 902bde7e-416f-11eb-1ebb-89565c1f72f8
-# So we can have a range of ingestion rate values by broadcasting our dose-response function on each dose value:
-αd = alpha.(dose_range)
-
-# ╔═╡ f5519edc-416e-11eb-0188-d758dedce041
-md"Let's see what it looks like:"
-
-# ╔═╡ 5b85b698-416f-11eb-0df2-077afa2d7486
-scatter(dose_range, 0.2 .* αd, xlabel = "Contaminant dose", ylabel = "Ingestion rate", c = :black, leg = false) #values of αd are shifted by 0.2 
-
-# ╔═╡ 7a1e3b50-416f-11eb-3fac-e775f4a0458b
-# This array will store the equilbrium densities for R and c
-# it's always a good idea to preallocate objects with the right type and size to speed things up
-eqN = zeros(length(αd), 2) 
-
-# ╔═╡ adf73b34-417b-11eb-194a-c357b58212c1
-for (i,a) in enumerate(αd) 
-	# i is the index (1:1:length(αd)) and a is the corresponding value in the vector
-    #parameters: the consumer rate of ingestion is modified
-    parameters = (
-        growthrate = 1.0   # /day, growth rate of prey 
-        , ingestrate = a*0.2   # /day, rate of ingestion
-        , mortrate = 0.2   # /day, mortality rate of consumer
-        , assimeff = 0.5   # -, assimilation efficiency
-        , K = 10
-        )
-    #initial values and time span are the same as above
-    u0 = [1.0 ; 1.0]
-    tspan = (0.0, 100.0)
-    # define the problem
-    prob = ODEProblem(LV, u0, tspan, parameters)
-    # solve
-    sol = solve(prob) #here we use the default algorithm, because it's a simple problem, see more info on how to chose your algorithm here: https://diffeq.sciml.ai/dev/solvers/ode_solve/
-    # store the results 
-    eqN[i,1] = sol.u[end][1] 
-    eqN[i,2] = sol.u[end][2] 
+# ╔═╡ 8102aed6-4eac-11eb-1779-418c7480b59c
+begin
+	global l = length(networks) #this global variable will monitore the number of food webs generated
+	while l < reps # make sure we get 5 networks with the right connectance value (connectance can vary dramatically)
+    	A_bool = EcologicalNetworks.nichemodel(20, 0.15) # Use the niche model from the Ecological Networks package to create a random network with 20 species and a connectance of 0.15
+   		A = Int.(A_bool.A) # Convert the UnipartiteNetwork object that is created into a matrix of 1s and 0s
+    	co = sum(A)/(size(A,1)^2) # Calculate connectance of the network A
+    	if co == 0.15
+        	push!(networks, A) # Save network if connectance = 0.15
+    	end
+    	global l = length(networks) # Keep count 
+	end
 end
 
-# ╔═╡ f1acd44e-417b-11eb-05bc-b99f760a8285
-md"And now we can visualise the result of our experiment: "
+# ╔═╡ 94947bdc-4eac-11eb-0659-afb90ebc53db
+md"**Important note**: In the packages used here, the interactions matrices are directed from i to j (i eats j), describing the direction of the interaction, not of the biomass flow!"
 
-# ╔═╡ 0c6b7ba0-417c-11eb-1283-1daaa83a36e2
-plot(dose_range, eqN
-    , seriestype = [:scatter, :line]
-    , label = ["" "" "Prey" "Predator"], leg = :right
-    , ylabel = "Abundance at t = 100"
-    , xlabel = "Dose of contaminant"
-    , markershape = [:diamond :circle], mc = [:white :white]
-	, msc = [:black :grey50], msw = 2
-    , lw = 2, linestyle = [:dash :dot], lc = [:black :grey50])
+# ╔═╡ 590f9e6a-4ead-11eb-31f1-2718dd772637
+md"We can now run the simulations:"
+
+# ╔═╡ 73952ad4-4ead-11eb-20a2-c5fe4d7636f9
+for h in 1:reps # Loop over networks
+    A = networks[h] # Use network h
+    # Here you might want to save a copy of the intial matrix structure, this can done using writedlm()
+
+    for i in 1:length(a) # Loop over a and K
+        for j in 1:length(K)
+            
+            # Create model parameters object:
+            p = model_parameters(A, α = a[i], K = [K[j]], productivity = :competitive) # here you specify any non-default parameters of interest and provide the network matrix (A)
+            # The possible arguments that can be passed into model_parameters are many, make sure you type ?model_parameters in the REPL and review the text, alternatively visit: 
+            # NOTE - In the MEE paper, the following argument is used (productivity = :competitive) to specify that species compete with themselves at a rate of 1.0, and with one another at a rate of α - unfortuntely, this is producing a strange error at the moment - we'll look into it.
+
+            # We start every simualtion by assigning starting biomasses to each species
+            bm = rand(size(A,1)) # Select biomass at random between ]0:1[
+            
+            # Run model using the simulate
+            #use=:stiff says you want to use a stiff algorithm to solve the equation, you can also use :nonstiff, it's faster but less accurate
+            #you can change the extinction threshold, here we use the same as in the paper, the default is 1e-6, you shouldn't go lower that 1e-16, which is close to the machine epsilon (type eps() for the exact value) 
+            out = simulate(p, bm, start=0, stop = 2000, use = :stiff, extinction_threshold = eps()) # Requires the model_parameters object and the biomass object. The start and stop arguments are pretty self explanatory.
+            # Again, we advised typing ?simulate into the REPL. 
+            # Here, it might be useful to write out your model object, the best way to do this is using the JDL2 package. JDL2 is a Julia file type that can be read back into Julia easily using the @load macro and can be handled by other coding platform e.g. R. 
+            # You can write out JLD2s file using the @save macro:
+            a_num = a[i] # dummy for alpha - naming purposes
+            K_num = K[j] # dummy for K - naming purposes
+            #@save "out_objects/model_output, network = $h, alpha = $a_num, K = $K_num.jld2" out # save model object in out_objects folder
+
+            # Calculate output metrics
+            diversity = foodweb_evenness(out, last=1000) # 
+            stability = population_stability(out, last=1000)
+            biomass = total_biomass(out, last=1000)
+
+            push!(df, [a[i], K[j], h, diversity, stability, biomass]) # Push each line to our dataframe
+
+            # Print some stuff... (I like to know how my simualtion is going!)
+            println(("alpha = $a_num", "carrying capacity = $K_num", "network no: $h")) # The $ function is great here. 
+        end
+    end
+end
+# NOTE - if you remove the @save command the code gets alot faster
+
+# ╔═╡ 9ad396b2-4ead-11eb-3397-27deb2fac788
+md"
+Now we can explore the outputs.
+
+The simulation objects are stored asDictionnaries called `out`. You can read in an model object (feel free to pick an out object in your `out_objects` folder).
+"
+
+# ╔═╡ 8eff0720-4ead-11eb-0162-23d98c504782
+@load "out_objects/model_output, network = 1, alpha = 0.92, K = 0.1.jld2" # Will load the out object
+# The out object has 3 slots:
+# (1) :p - lists the model parameters
+# (2) :B - estimated biomass (species * time)
+# (3) :t - time steps of the model (this won't be 1,2,3.... because 'time steps' refers to the time step of the ODE solver - usually steps of 0.25)
+
+# ╔═╡ 186967da-4eae-11eb-3c46-69fc62e62802
+bio = out[:B] # extract biomass
+
+# ╔═╡ 25553156-4eae-11eb-1a1d-33a9342a65fa
+time = out[:t] # extract time steps
+
+# ╔═╡ 2b6ab07a-4eae-11eb-1202-2987cf72b5bc
+plot(time, bio, legend = false, ylabel = "biomass", xlabel = "time", ylims = (0,0.5)) # plot species biomass throught time - typically the biomass will either flatline (stable dynamics) or will enter transient dynamics (up and downs etc)
+
+# ╔═╡ fbcd149c-4eb0-11eb-0745-1b5d4c48cfee
+sp = out[:p][:S] # Number of species in the system - should be 20
+
+# ╔═╡ 39102932-4eae-11eb-36ac-534ef3f4fd77
+# Some species reach a biomass of approx. 0 during the simulations and are considered as extinct at the end of the simulations
+extinct = out[:p][:extinctions] # Identity of extinct species?
+
+# ╔═╡ 3d233c30-4eae-11eb-36e9-83e20800c624
+pers = 1 - length(extinct) / sp # Persistence = proportion of species remaining
+
+# ╔═╡ 5e80eb3c-4eae-11eb-3177-db8b9c53fec8
+describe(df) # prints the dataframe
+
+# ╔═╡ 65256c38-4eae-11eb-110f-fbf4b36e3bff
+last(df,6) # last 6 rows
+
+# ╔═╡ 6a3d6b62-4eae-11eb-2d0a-4ba8bbe18ad8
+first(df, 6) # first 6 rows
+
+# ╔═╡ 71f39ac0-4eae-11eb-22bd-8537a3283cc1
+md"
+Now that we know more about the simulations and the outputs, let's reproduce fig. 1.
+- y = foodweb diversity measured as their evenness (which quantifies how close in biomass each species in a food web is)
+- x = carrying capacity 
+- by = strength of inter- vs intraspecific competition
+"
+
+# ╔═╡ a0b4edd4-4eae-11eb-3d1e-5f7f1f5cda75
+p = plot([NaN], [NaN]
+	, label = ""
+	, ylims = (0,1.1)
+	, leg = :bottomright
+	, foreground_color_legend = nothing
+	, xticks = (log10.(K), string.(round.(K, digits = 1)))
+	, xlabel = "Carrying capacity"
+	, ylabel = "Food web diversity (evenness)") #initialize an empty plot
+
+# ╔═╡ a58679b6-4eae-11eb-2dcd-0f94734e4a90
+shp = [:square, :diamond, :utriangle] #shapes of the markers
+
+# ╔═╡ 27a6e230-4eb1-11eb-3fbd-a14ae81f4431
+md"Note that when we define colors in Julia, they are printed, that's pretty cool:"
+
+# ╔═╡ af03b18e-4eae-11eb-1de9-51286ad67174
+clr = [RGB(174/255, 139/255, 194/255), RGB(188/255, 188/255, 188/255), RGB(124/255, 189/255, 122/255)] #define the colors (you can see the Colors package for more information on how to define colors, or the palettes available)
+
+# ╔═╡ ce0c078e-4eae-11eb-115a-356056716a9a
+ls = [:solid, :dash, :dot] #line styles
+
+# ╔═╡ d4b1b9bc-4eae-11eb-00d7-6735a961c377
+lbl = ["Coexistence", "Neutral", "Exclusion"] #legend labels
+
+# ╔═╡ da976854-4eae-11eb-0f53-25aca51dc56b
+#now make the plot
+for (i, α) in enumerate(a)
+    tmp = df[df.alpha .== α,:] #subset values of interest
+    tmp = tmp[.!(isnan.(tmp.diversity)),:] #remove NaN values
+    meandf = by(tmp, :K, :diversity => mean)
+	l = i == 1 ? lbl[i] : ""  
+    plot!(p, log10.(meandf.K), meandf.diversity_mean
+        , msc = clr[i], mc = :white, msw = 3, markershape = shp[i]
+        , linestyle = ls[i], lc =  clr[i], lw = 2
+        , label = lbl[i]
+        , seriestype = [:line :scatter])
+end
+
+# ╔═╡ 6d6eb46c-4eb1-11eb-338a-ab3a47757826
+# display the plot 
+plot(p)
+
+# ╔═╡ 7c28a770-4eb2-11eb-0f77-473cad356c6c
+# Write out your data
+CSV.write("My_data.csv", df)
 
 # ╔═╡ Cell order:
-# ╠═0f899f22-4163-11eb-19e5-63175fab4bf5
-# ╟─f316e6b4-4163-11eb-0340-e92f9ace2386
-# ╟─82967eda-4164-11eb-2b6a-dde5704f3497
-# ╠═be48ce4c-4164-11eb-1c2a-33a950344740
-# ╟─eed95432-4164-11eb-3a2b-637217b14f49
-# ╟─10721016-4165-11eb-3724-4f656be470c7
-# ╟─e537957a-4168-11eb-13f0-d969b7397595
-# ╠═19fc1444-4168-11eb-1198-a351b833a5e0
-# ╟─0f9cd950-416a-11eb-2d48-6b5f3e4a6f01
-# ╠═7b807ffc-416a-11eb-1af2-e929f50f7286
-# ╟─852c1816-416a-11eb-3dfb-7bf3c3625ee1
-# ╠═9bb650f6-416a-11eb-27dc-b7acedc26b0f
-# ╟─b5b59912-416a-11eb-26ac-5bcbdbed74da
-# ╠═cddb48ac-416a-11eb-3ecd-d14bcaf14bb9
-# ╟─67a6b9f0-416c-11eb-1819-753421406b22
-# ╠═76195ee0-416c-11eb-03f9-e9d7733872b2
-# ╟─8b6156c2-416c-11eb-1f01-7fcafd014e27
-# ╠═cbc0d5c6-416c-11eb-002d-c3c826aefe93
-# ╟─f5edc520-416c-11eb-3547-41c229104d1e
-# ╟─169ab594-416d-11eb-2e5b-df6c65717a0b
-# ╠═1fd1e8a8-416d-11eb-1c15-973a12fee426
-# ╟─368947a8-416d-11eb-29a9-3b7508eb7c13
-# ╠═e2955b28-416e-11eb-2b27-ed9d10bc166d
-# ╠═902b9098-416f-11eb-30ef-271d762f3c9c
-# ╠═902bde7e-416f-11eb-1ebb-89565c1f72f8
-# ╟─f5519edc-416e-11eb-0188-d758dedce041
-# ╠═5b85b698-416f-11eb-0df2-077afa2d7486
-# ╠═7a1e3b50-416f-11eb-3fac-e775f4a0458b
-# ╠═adf73b34-417b-11eb-194a-c357b58212c1
-# ╟─f1acd44e-417b-11eb-05bc-b99f760a8285
-# ╠═0c6b7ba0-417c-11eb-1283-1daaa83a36e2
+# ╠═c0ebcd72-4185-11eb-1f7a-495100d90da7
+# ╟─02d42d26-4ea9-11eb-0037-29e78216697e
+# ╟─4d456ac8-4ea9-11eb-24be-3181d81cea4e
+# ╟─6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
+# ╠═58837362-4ea9-11eb-203b-c1ddc9983e1c
+# ╟─38e8575e-4eaa-11eb-2843-cbefb55fb1f9
+# ╠═44e9c512-4eaa-11eb-2a1a-53b024da1311
+# ╟─e20123b4-4ea9-11eb-3e7c-570c8c04e3ec
+# ╠═76a28a94-4eaa-11eb-3677-0bce632c9572
+# ╠═af85ded0-4eaa-11eb-0434-df7f39a2172a
+# ╠═bc148726-4eaa-11eb-103e-0d40e15d7b95
+# ╟─bf4f56be-4eaa-11eb-1487-f1747aab8d4e
+# ╠═cec73ec2-4eaa-11eb-223d-c3f6707a8ba3
+# ╟─d332dcee-4eaa-11eb-0cf5-33bd128825cd
+# ╠═f1213a72-4eaa-11eb-2117-49e624afa4fe
+# ╟─f9545abc-4eaa-11eb-3ef5-a7c1f1d61b62
+# ╠═5a71c630-4eac-11eb-3acd-b173c3cae180
+# ╠═8102aed6-4eac-11eb-1779-418c7480b59c
+# ╟─94947bdc-4eac-11eb-0659-afb90ebc53db
+# ╟─590f9e6a-4ead-11eb-31f1-2718dd772637
+# ╠═73952ad4-4ead-11eb-20a2-c5fe4d7636f9
+# ╟─9ad396b2-4ead-11eb-3397-27deb2fac788
+# ╠═8eff0720-4ead-11eb-0162-23d98c504782
+# ╠═186967da-4eae-11eb-3c46-69fc62e62802
+# ╠═25553156-4eae-11eb-1a1d-33a9342a65fa
+# ╠═2b6ab07a-4eae-11eb-1202-2987cf72b5bc
+# ╠═fbcd149c-4eb0-11eb-0745-1b5d4c48cfee
+# ╠═39102932-4eae-11eb-36ac-534ef3f4fd77
+# ╠═3d233c30-4eae-11eb-36e9-83e20800c624
+# ╠═5e80eb3c-4eae-11eb-3177-db8b9c53fec8
+# ╠═65256c38-4eae-11eb-110f-fbf4b36e3bff
+# ╠═6a3d6b62-4eae-11eb-2d0a-4ba8bbe18ad8
+# ╟─71f39ac0-4eae-11eb-22bd-8537a3283cc1
+# ╠═a0b4edd4-4eae-11eb-3d1e-5f7f1f5cda75
+# ╠═a58679b6-4eae-11eb-2dcd-0f94734e4a90
+# ╟─27a6e230-4eb1-11eb-3fbd-a14ae81f4431
+# ╠═af03b18e-4eae-11eb-1de9-51286ad67174
+# ╠═ce0c078e-4eae-11eb-115a-356056716a9a
+# ╠═d4b1b9bc-4eae-11eb-00d7-6735a961c377
+# ╠═da976854-4eae-11eb-0f53-25aca51dc56b
+# ╠═6d6eb46c-4eb1-11eb-338a-ab3a47757826
+# ╠═7c28a770-4eb2-11eb-0f77-473cad356c6c
