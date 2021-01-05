@@ -17,7 +17,7 @@ There is also a section at the end with some "Quick tips".
 
 First, load the packages that you will need for this tutorial, and set a random seed: 
 
-```julia; eval = false
+```julia; eval = true, results = "hidden"
 # Load packages
 using Plots
 using DataFrames
@@ -39,7 +39,7 @@ Before we start creating arrays and matrices, we'd like to demonstrate how you a
 
 ## Allocating objects
 Allocating in Julia is useful as it means that variables can be stored and used elsewhere. You allocate numbers to objects using the following:
-```julia; eval = false
+```julia; eval = true, term = false
 # allocate an Integer:
 nu = 5
 # allocate a Floating point number:
@@ -283,9 +283,9 @@ function plus_two(x)
     return x + 2
 end
 # input variable:
-x = 17
+x3 = 17
 # run functions:
-z = plus_two(x)
+z3 = plus_two(x)
 # functions can also be witten to take no inputs:
 function pub_time()
     println("Surely it's time for Interval")
