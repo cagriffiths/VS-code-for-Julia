@@ -1,12 +1,14 @@
 ---
 title: Julia in VS Code \#3 \\ Differential Equations in Julia
-author: Chris Griffiths \& Eva Delmas
+author: Chris Griffiths, Eva Delmas \& Andrew Beckerman
 date: \today
 ---
 
 This document follows on from "Julia in VS Code #1 and #2" and assumes that you're still working in your active project. 
 
 This document illistrates how to construct and solve differential equations in Julia using the `DifferentialEquations.jl` package. In particular, we are interested in modelling a two species Lotka-Volterra like (predator-prey/consumer-resource) system. Such systems are fundamental in ecology and form the building blocks of complex networks and the models that represent them. 
+
+# Packages
 
 First, import your package manager, activate and instantiate (only neccessary if you've closed VS Code between tutorials):
 ```julia; eval = true, results = "hidden"

@@ -1,0 +1,120 @@
+---
+title: Julia in VS Code \#4 \\ Introduction to BioEnergeticFoodWebs
+author: Chris Griffiths \& Eva Delmas
+date: \today
+---
+
+This document follows on from "Julia in VS Code #1, #2 and #3" and assumes that you're still working in your active project. 
+
+This document introduces the `BioEnergeticFoodWebs.jl` and `EcologicalNetworks.jl` packages. It demonstrates how to run the BioEnergetic Food Web (BEFW) model, how to vary variables of interest (e.g., productivity) and construct experiments designed to investigate the effect of different variables on population and community dynamics. For those that are unfamilar with the BEFW and it's application in Julia, we advise checking out the [MEE paper](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713) before we start. Remember, the BEFW model is also based on a system of differential equations and is solved using the same engine as the `DifferentialEquations.jl` package. 
+
+# Packages
+
+First, import your package manager, activate and instantiate (only neccessary if you've closed VS Code between tutorials):
+```julia; eval = true, results = "hidden"
+import Pkg
+Pkg.activate(".")
+Pkg.instantiate()
+```
+Then install the `BioEnergeticFoodWebs.jl`, `EcologicalNetworks.jl` and `JLD2.jl` packages and let Julia know you want to use them:
+```julia; eval = true, results = "hidden"
+# install
+Pkg.add("BioEnergeticFoodWebs")
+Pkg.add("EcologicalNetworks")
+Pkg.add("JLD2")
+# use
+using BioEnergeticFoodWebs
+using EcologicalNetworks
+using JLD2
+```
+The `JLD2.jl` package will be useful later as it allows you to directly export and load a BEFW output object. Let's also set a random seed for reproducibility:
+```julia; eval = true, results = "hidden"
+Random.seed!(21)
+```
+
+# Preamble
+
+One of main advantegeous of running food web models in Julia is that simulations are fast and can be readily stored in your active project. With this in might, make a new folder in your project called `out_objects` (right click > New Folder). Alternatively, you can create an `out_objects` folder directly using `mkdir("out_objects/")`. 
+
+# Running the BEFW
+
+There are four major steps when running the BioEnergetic Food Web model in Julia:
+1. Generate an initial network 
+2. Fix parameters
+3. Simulate
+4. Explore output and plot
+
+## Initial network 
+Before running the BEFW model, we have to construct an initial random network using [the niche model](https://www.nature.com/articles/35004572?cacheBust=1510239451067). The network is characterised by the number of species in the network and its [connectance](https://en.wikipedia.org/wiki/Ecological_network) value. Here, we generate a network of 20 species with a connectance value of 0.15:
+```julia; eval = true, results = "hidden"
+# generate network
+A_bool = EcologicalNetworks.nichemodel(20,0.15) 
+# convert the UnipartiteNetwork object into a matrix of 1s and 0s
+A = Int.(A_bool.A)
+# 1s indicate an interaction among species and 0s no interaction 
+```
+You can check the connectance of A using:
+```julia; eval = true, results = "hidden"
+# calculate connectance
+co = sum(A)/(size(A,1)^2)
+```
+
+## Parameters
+Prior to running the BEFW model, you have to create a vector of model parameters using the `model_parameters` function. Numerous parameter values can be specified within the `model_parameters` function, however, most of them have default values that are built into the `BioEnergeticFoodWebs.jl` package. For simplicity, we use the default values here:
+```julia; eval = true, results = "hidden"
+# create model parameters
+p = model_parameters(A)
+# in the most simple case, the model_parameters function simply requires A
+```
+For more information and a full list of the parameters and their defaults values type `?model_parameters` in the REPL. 
+
+## Simulate
+To run the BEFW model, we first assign biomasses at random to each species and then simulate the biomass dynamics forward using the `simulate` function:
+```julia; eval = true, results = "hidden"
+# assign biomasses
+bm = rand(size(A,1)) 
+# select biomasses at random between ]0:1[
+
+# simulate
+out = simulate(p, bm, start=0, stop=2000)
+# this might take a few seconds
+```
+The `simulate` requires the model parameters `p` and the species biomasses `bm`. In addition, you can specify the timespan of the simulation (using the `start` and `stop` arguments), fix a species extinction threshold (using `extinction_threshold`) and select a solver (using `use`). For more information type `?simulate` in the REPL. 
+
+## Output and plot
+Once the simulation finishes, the output is stored as a dictionary called `out`. Within `out` there are three entries:
+1. `out[:p]` - lists the parameters
+2. `out[:B]` - biomass of each species through time
+3. `out[:t]` - timesteps (these typically increase in 0.25 intervals)
+
+The biomass dynamics of each species can then be plotted. Similar to the `DifferentialEquations.jl` package, the `BioEnergeticFoodWebs.jl` package also has it's own built in plotting recipe:
+```julia; eval = true, results = "hidden"
+# plot
+Plots.plot(out[:t], out[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
+# this make take a minute to render
+```
+You'll notice that the biomass dynamics are noisey during the first few hundred time steps, these are system's transient dynamics. The dynamics then settle into a steady state where the system can be assumed to be at equilbirum. You'll also notice that some species go extinct and some persist, the number of species in the food web can found using `out[:p][:S]` and the identity of those that went extinct using `out[:p][:extinctions]`. 
+
+The `BioEnergeticFoodWebs.jl` package also has a range of built in functions that convientially calculate some the key metrics of the food web, these include the total biomass, the diversity, the species persistence and the temporal stability:
+```julia; eval = true, results = "hidden"
+# total biomass
+biomass = total_biomass(out, last=1000)
+# diversity
+diversity = foodweb_evenness(out, last=1000)
+# persistence
+persistence = species_persistence(out, last=1000)
+# stability 
+stability = population_stability(out, last=1000)      
+```
+Each of these functions will output a single value. This value is the average over the `last` 1000 time steps. For more information, use `?` to access the help files on each function in the REPL.
+
+# Variables 
+Once you've got the BEFW model running, the next step is to vary a variable of interest and rerun. For example, we might be interested in what affect a small change in productivity (α) has on the estimated food web and its biomass dynamics. The default value for α is 1.0, but what happens if we reduce it to 0.5:
+```julia; eval = true, results = "hidden"
+
+```
+Similarly, what happens if we increase the carrying capacity (K) of the food web from 1.0 to 5.0:
+```julia; eval = true, results = "hidden"
+
+```
+As you've probably guessed, the main message here is 
