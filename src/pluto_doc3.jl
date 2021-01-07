@@ -15,25 +15,14 @@ md"# Differential Equations in Julia
 # ╔═╡ f316e6b4-4163-11eb-0340-e92f9ace2386
 md"This tutorial is adapted from an R script provided by Andrew Beckerman. 
 
-This document follows on from 'Using Julia in VS code' #1 and #2 and assumes that you're still working from your active project. 
+This document follows on from 'Getting started' and 'Basic Julia commands' and assumes that you're still working from your active project. 
 
 This document illustrates how to construct and solve differential equations in Julia using the `DifferentialEquations.jl` package. In particular, we are interested in modelling a two species Lotka-Volterra like (predator-prey/consumer-resource) system. Such systems are fundamental in ecology and form the building blocks of complex networks and the models that represent them."
 
-# ╔═╡ 82967eda-4164-11eb-2b6a-dde5704f3497
-md"## Packages
-
-First, import your package manager, activate and instantiate (only neccessary if you've closed VS Code between tutorials).
-"
-
-# ╔═╡ be48ce4c-4164-11eb-1c2a-33a950344740
-begin
-	import Pkg
-	Pkg.activate(".")
-	Pkg.instantiate()
-end
-
 # ╔═╡ 806150da-4f7a-11eb-0481-937f8e83ab8c
 md"
+## Load packages
+
 For this tutorial you'll need the following two packages: 
 - `DifferentialEquations.jl` to solve the differential equations (same 'engine' as the one used by the `BioEnergeticFoodWebs.jl` model)
 - `Plots.jl` to visualise the results"
@@ -166,8 +155,6 @@ You could also plot the data manually using `Plots.jl` or `Gadfly.jl`, manipulat
 # ╔═╡ Cell order:
 # ╟─0f899f22-4163-11eb-19e5-63175fab4bf5
 # ╟─f316e6b4-4163-11eb-0340-e92f9ace2386
-# ╟─82967eda-4164-11eb-2b6a-dde5704f3497
-# ╠═be48ce4c-4164-11eb-1c2a-33a950344740
 # ╟─806150da-4f7a-11eb-0481-937f8e83ab8c
 # ╠═0bcdf87e-4f7a-11eb-0730-33c955c3992b
 # ╟─eed95432-4164-11eb-3a2b-637217b14f49

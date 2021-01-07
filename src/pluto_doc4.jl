@@ -4,6 +4,9 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 58837362-4ea9-11eb-203b-c1ddc9983e1c
+using BioEnergeticFoodWebs, EcologicalNetworks, JLD2, Statistics, Plots, CSV, DataFrames, Random
+
 # ╔═╡ c0ebcd72-4185-11eb-1f7a-495100d90da7
 md"# Intro to BioEnergeticFoodWebs
 
@@ -11,7 +14,7 @@ md"# Intro to BioEnergeticFoodWebs
 
 # ╔═╡ 02d42d26-4ea9-11eb-0037-29e78216697e
 md"
-This document follows on from 'Julia in VS Code #1, #2 and #3' and assumes that you're still working in your active project.
+This document follows on from 'Getting started', 'Basic Julia commands' and 'Differential Equations in Julia' and assumes that you're still working in your active project.
 
 This document introduces the `BioEnergeticFoodWebs.jl` and `EcologicalNetworks.jl` packages. It demonstrates how to run the BioEnergetic Food Web (BEFW) model, how to vary variables of interest (e.g., productivity) and construct experiments designed to investigate the effect of different variables on population and community dynamics. 
 
@@ -19,41 +22,11 @@ For those that are unfamilar with the BEFW and it's application in Julia, we adv
 "
 
 # ╔═╡ 4d456ac8-4ea9-11eb-24be-3181d81cea4e
-md"## Packages"
-
-# ╔═╡ 502f1a3a-50fd-11eb-3016-a90065cdfa60
-md"
-First, import your package manager, activate and instantiate (only neccessary if you've closed VS Code between tutorials):
-"
-
-# ╔═╡ 6905b3f2-50fd-11eb-2974-db99d78e7460
-begin
-	import Pkg
-	Pkg.activate(".")
-	Pkg.instantiate()
-end
-
-# ╔═╡ 58837362-4ea9-11eb-203b-c1ddc9983e1c
-begin
-	# install
-	Pkg.add("BioEnergeticFoodWebs")
-	Pkg.add("EcologicalNetworks")
-	Pkg.add("JLD2")
-	Pkg.add("Statistics")
-	# use
-	using BioEnergeticFoodWebs
-	using EcologicalNetworks
-	using JLD2
-	using Statistics
-	using Plots
-	using CSV
-	using DataFrames
-	using Random
-end
+md"## Load packages"
 
 # ╔═╡ 6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
 md"
-Then install the `BioEnergeticFoodWebs.jl`, `EcologicalNetworks.jl` and `JLD2.jl` packages and let Julia know which packages you want to use:
+You'll need the following packages for this tutorial:
 "
 
 # ╔═╡ 38e8575e-4eaa-11eb-2843-cbefb55fb1f9
@@ -389,14 +362,12 @@ CSV.write("My_data.csv", df)
 # ╟─c0ebcd72-4185-11eb-1f7a-495100d90da7
 # ╟─02d42d26-4ea9-11eb-0037-29e78216697e
 # ╟─4d456ac8-4ea9-11eb-24be-3181d81cea4e
-# ╟─502f1a3a-50fd-11eb-3016-a90065cdfa60
-# ╠═6905b3f2-50fd-11eb-2974-db99d78e7460
 # ╟─6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
 # ╠═58837362-4ea9-11eb-203b-c1ddc9983e1c
 # ╟─38e8575e-4eaa-11eb-2843-cbefb55fb1f9
 # ╠═44e9c512-4eaa-11eb-2a1a-53b024da1311
 # ╟─e20123b4-4ea9-11eb-3e7c-570c8c04e3ec
-# ╠═daa5d4c8-50fe-11eb-3ced-29c48292f7b2
+# ╟─daa5d4c8-50fe-11eb-3ced-29c48292f7b2
 # ╠═bc148726-4eaa-11eb-103e-0d40e15d7b95
 # ╟─bf4f56be-4eaa-11eb-1487-f1747aab8d4e
 # ╠═cec73ec2-4eaa-11eb-223d-c3f6707a8ba3

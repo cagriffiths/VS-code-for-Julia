@@ -14,7 +14,7 @@ md"# Basic Julia commands
 
 # ╔═╡ 00b46e28-4ed3-11eb-0e21-438510d77100
 md"""
-This document follows on from "Using Julia in VS Code #1" and assumes that you're still working in your active project. 
+This document follows on from "Getting started" and assumes that you're still working in your active project. 
 
 This document covers the following:
 - Arrays and Matrices
@@ -27,7 +27,7 @@ There is also a section at the end with some "Quick tips".
 """
 
 # ╔═╡ cc6b8f9a-4ed3-11eb-1585-a54395c39dab
-md"## Load the packages
+md"## Load packages
 
 You'll need a few packages for this tutorial:
 "
