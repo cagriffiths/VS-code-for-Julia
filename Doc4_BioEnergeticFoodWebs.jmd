@@ -51,7 +51,7 @@ Before running the BEFW model, we have to construct an initial random network us
 A_bool = EcologicalNetworks.nichemodel(20,0.15) 
 # convert the UnipartiteNetwork object into a matrix of 1s and 0s
 A = Int.(A_bool.A)
-# 1s indicate an interaction among species and 0s no interaction 
+# 1s indicate an interaction among species and 0s no interaction. In the packages used here, the networks are directed from i to j (i eats j), describing the direction of the interaction, not of the flow of biomass.
 ```
 You can check the connectance of A using:
 ```julia; eval = true, results = "hidden"
@@ -91,7 +91,7 @@ The biomass dynamics of each species can then be plotted. Similar to the `Differ
 ```julia; eval = true, results = "hidden"
 # plot
 Plots.plot(out[:t], out[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
-# this make take a minute to render
+# this may take a minute to render
 ```
 You'll notice that the biomass dynamics are noisey during the first few hundred time steps, these are system's transient dynamics. The dynamics then settle into a steady state where the system can be assumed to be at equilbirum. You'll also notice that some species go extinct and some persist, the number of species in the food web can found using `out[:p][:S]` and the identity of those that went extinct using `out[:p][:extinctions]`. 
 
@@ -109,12 +109,144 @@ stability = population_stability(out, last=1000)
 Each of these functions will output a single value. This value is the average over the `last` 1000 time steps. For more information, use `?` to access the help files on each function in the REPL.
 
 # Variables 
-Once you've got the BEFW model running, the next step is to vary a variable of interest and rerun. For example, we might be interested in what affect a small change in productivity (α) has on the estimated food web and its biomass dynamics. The default value for α is 1.0, but what happens if we reduce it to 0.5:
+Once you've got the BEFW model running, the next step is to vary a variable of interest and rerun. For example, we might be interested in what affect a small change in Z (consumer-resource body mass ratio) has on the estimated food web and its biomass dynamics. The default value for Z is 1.0, but what happens if we reduce it to 10.0:
 ```julia; eval = true, results = "hidden"
-
+# set Z
+Z = 10.0
+# create model parameters
+p = model_parameters(A, Z = Z)
+# assign biomasses
+bm = rand(size(A,1)) 
+# simulate
+out = simulate(p, bm, start=0, stop=2000)
+# plot
+Plots.plot(out[:t], out[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
 ```
-Similarly, what happens if we increase the carrying capacity (K) of the food web from 1.0 to 5.0:
+Similarly, what happens if we also increase the carrying capacity (K) of the resource from 1.0 (default) to 5.0:
 ```julia; eval = true, results = "hidden"
-
+# set K
+K = 5.0
+# create model parameters
+p = model_parameters(A, Z = Z, K = K)
+# assign biomasses
+bm = rand(size(A,1)) 
+# simulate
+out = simulate(p, bm, start=0, stop=2000)
+# plot
+Plots.plot(out[:t], out[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
 ```
-As you've probably guessed, the main message here is 
+As you've probably guessed, the main message here is many variables can be changed in the BEFW model and it's super easy to do so. In the next step, we take this one step further. 
+
+# Experiments 
+The next step is to construct a computional experiment designed to investigate the effect of different variables on population and community dynamics. To do this we construct a gradient of variables as vectors and then simulate the BEFW model multiple times using a loop. To illistrate this, we're going to reproduce example 1 from [Delmas et al. 2016](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713). The aim of this example is to investigate the effect of increasing K on food web diversity. In addition, we're also going to allow α (interspecific competition relatively to intraspecific competition) to vary and repeat the experiment 5 times with 5 different initial networks.
+
+First, we define the experiment by creating vectors of our variables and fixing the number of repetitions:
+```julia; eval = true, results = "hidden"
+# vector of α
+α = [0.92, 1.0, 1.08] 
+# 0.92 - the interspecific competition is smaller than the intraspecific competition promoting coexistence
+# 1.0 - neutrally stable 
+# 1.08 - the intraspecific competition is smaller the interspecific competition favouring competitive exclusion
+
+# vector of K
+K = exp10.(range(-1,1,length=10))
+# log scale from 0.1 to 10
+
+# number of reps
+reps = 5
+```
+We then create a dataframe to store the outputs:
+```julia; eval = true, results = "hidden"
+# dataframe
+df = DataFrame(α = [], K = [], network = [], diversity = [], stability = [], biomass = [])
+```
+and construct a while loop to generate the 5 unique initial networks, each of which contains 20 species with a connectance value of 0.15:
+```julia; eval = true, results = "hidden"
+# list to store networks
+networks = []
+# monitoring variable 
+l = length(networks)
+# while loop
+while l < reps
+    # generate network
+    A_bool = EcologicalNetworks.nichemodel(20,0.15) 
+    # convert the UnipartiteNetwork object into a matrix of 1s and 0s
+    A = Int.(A_bool.A)
+    # calculate connectance
+    co = sum(A)/(size(A,1)^2)
+    # ensure that connectance = 0.15
+    if co == 0.15
+        push!(networks, A)
+        # save network is co = 0.15
+    end
+    l = length(networks)
+end
+```
+We can then run the simulations by looping, using nested for loops, over the unique values of α and K, as well as the 5 unique initial networks. After each simulation we will save each output object to our active project as a `JLD2` file and store any output metrics of interest in our dataframe:
+```julia; eval = true, results = "hidden"
+# loop over networks
+for h in 1:reps
+    A = networks[h]
+    # here, you might want to save a copy of the initial network using writedlm(A)
+
+    # loop over α
+    for i in 1:length(α) 
+        # loop over K
+        for j in 1:length(K)
+
+        # create model parameters
+        p = model_parameters(A, α = α[i], K = K[[j]])
+        # assign biomasses
+        bm = rand(size(A,1)) 
+        # simulate
+        out = simulate(p, bm, start=0, stop=2000)
+
+        # dummy naming variables
+        α_num = α[i]
+        K_num = K[j]
+        # save `out` as a JLD2 object using the @save macro:
+        @save "out_objects/model_output, network = $h, alpha = $α_num, K = $K_num.jld2" out
+
+        # calculate output metrics
+        diversity = foodweb_evenness(out, last = 1000)
+        stability = population_stability(out, last = 1000)
+        biomass = total_biomass(out, last = 1000)
+
+        # push to df
+        push!(df, [α[i], K[j], h, diversity, stability, biomass])
+
+        # print some stuff - we like to know how the simulation is progressing
+        println()
+        end
+    end
+end
+# the code will be much faster if you remove the @save command
+```
+We can then explore the outputs and plot our results. Here, instead of using the built in plotting recipe, we will construct a plot that matches figure 1 in [Delmas et al. 2016](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713). Specifically, we will plot food web diversity (y-axis) as a function of K (x-axis) and α (line colour):
+```julia; eval = true, results = "hidden"
+# explore output
+describe(df)
+first(df,6)
+last(df,6)
+
+# plot
+# initialise an empty plot
+
+# set marker shapes
+
+# set line types
+
+# set colours
+
+# set legend labels
+
+# make the plot
+
+# display plot
+plot(pl)
+```
+Finally, we can save our dataframe as a .csv file:
+```julia; eval = true, results = "hidden"
+# save
+CSV.write("My_data.csv", df)
+```
