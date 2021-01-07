@@ -1,4 +1,5 @@
 my_data.csv
+My_data.csv
 testing_3.0_my_data.txt
 out_objects/
 plot.png
@@ -21,4 +22,8 @@ Doc3_DiffEqs.aux
 Doc3_DiffEqs.log
 Doc3_DiffEqs.out
 Doc3_DiffEqs.tex
+Doc4_BioEnergeticFoodWebs.aux
+Doc4_BioEnergeticFoodWebs.log
+Doc4_BioEnergeticFoodWebs.out
+Doc4_BioEnergeticFoodWebs.tex
 testing_Atlantic cod_rates.txt

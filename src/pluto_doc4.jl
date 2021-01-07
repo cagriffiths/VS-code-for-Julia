@@ -4,9 +4,6 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 58837362-4ea9-11eb-203b-c1ddc9983e1c
-using Plots, DataFrames, Distributions, Random, EcologicalNetworks, BioEnergeticFoodWebs, DelimitedFiles, CSV, JLD2
-
 # ╔═╡ c0ebcd72-4185-11eb-1f7a-495100d90da7
 md"# Intro to BioEnergeticFoodWebs
 
@@ -14,273 +11,434 @@ md"# Intro to BioEnergeticFoodWebs
 
 # ╔═╡ 02d42d26-4ea9-11eb-0037-29e78216697e
 md"
-This doc follows on from 'Using Julia in VS code #1' and 'Using Julia in VS code #2' and assumes that your still working from your directory.
+This document follows on from 'Julia in VS Code #1, #2 and #3' and assumes that you're still working in your active project.
 
-Before we start, make a folder in the directory called out_objects (right click>New Folder)
+This document introduces the `BioEnergeticFoodWebs.jl` and `EcologicalNetworks.jl` packages. It demonstrates how to run the BioEnergetic Food Web (BEFW) model, how to vary variables of interest (e.g., productivity) and construct experiments designed to investigate the effect of different variables on population and community dynamics. 
 
-This doc aims to introduce the BioEnergeticFoodWebs package and recreate the first example in [Delmas et al. 2017 MEE](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713). Check out the paper before we start.
+For those that are unfamilar with the BEFW and it's application in Julia, we advise checking out the [MEE paper](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713) before we start. Remember, the BEFW model is also based on a system of differential equations and is solved using the same engine as the `DifferentialEquations.jl` package.
 "
 
 # ╔═╡ 4d456ac8-4ea9-11eb-24be-3181d81cea4e
-md"## Load the packages"
+md"## Packages"
+
+# ╔═╡ 502f1a3a-50fd-11eb-3016-a90065cdfa60
+md"
+First, import your package manager, activate and instantiate (only neccessary if you've closed VS Code between tutorials):
+"
+
+# ╔═╡ 6905b3f2-50fd-11eb-2974-db99d78e7460
+begin
+	import Pkg
+	Pkg.activate(".")
+	Pkg.instantiate()
+end
+
+# ╔═╡ 58837362-4ea9-11eb-203b-c1ddc9983e1c
+begin
+	# install
+	Pkg.add("BioEnergeticFoodWebs")
+	Pkg.add("EcologicalNetworks")
+	Pkg.add("JLD2")
+	Pkg.add("Statistics")
+	# use
+	using BioEnergeticFoodWebs
+	using EcologicalNetworks
+	using JLD2
+	using Statistics
+	using Plots
+	using CSV
+	using DataFrames
+	using Random
+end
 
 # ╔═╡ 6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
 md"
-- `Plots` for... plotting
-- `DataFrames` for using and manipulating data frames
-- `Distributions` to define various distributions
-- `Random` for added randomness (and for setting the seed) 
-- `EcologicalNetworks` for building, manipulating and analysing food webs
-- `BioEnergeticFoodWebs` for simulatimng biomass dynamics in food webs
-- `DelimitedFiles` for reading and writing delimited files 
-- `CSV` for reading and writing CSV
-- `JLD2` for saving and loading Julia object in their native format
+Then install the `BioEnergeticFoodWebs.jl`, `EcologicalNetworks.jl` and `JLD2.jl` packages and let Julia know which packages you want to use:
 "
 
 # ╔═╡ 38e8575e-4eaa-11eb-2843-cbefb55fb1f9
-md"Let's set a random seed for reproducibility"
+md"The `JLD2.jl` package will be useful later as it allows you to directly export and load a BEFW output object. Let's also set a random seed for reproducibility:"
 
 # ╔═╡ 44e9c512-4eaa-11eb-2a1a-53b024da1311
 Random.seed!(21)
 
 # ╔═╡ e20123b4-4ea9-11eb-3e7c-570c8c04e3ec
 md"
-## Reproduce figure 1
+## Preamble
 
-The aim of this first example is to investigate the effect of increasing the carrying capacity of the resource (K) on food web diversity, also we're going to vary alpha (the amount of interspecific competition relative to intraspecific competition) and repeat the simulations 5 times (with 5 different food web networks). See [figuer 1 of the paper](https://besjournals.onlinelibrary.wiley.com/cms/asset/bd3b7b2a-4528-47d7-9f9b-57af19e2c0c0/mee312713-fig-0001-m.png).
+One of main advantages of running food web models in Julia is that simulations are fast and can be readily stored in your active project. With this in mind, make a new folder in your project called `out_objects` (right click > New Folder). Alternatively, you can create an `out_objects` folder directly using `mkdir()`."
 
-First, we want to define the experimental design: 
+# ╔═╡ daa5d4c8-50fe-11eb-3ced-29c48292f7b2
+md"
+## Running the BEFW
+
+There are four major steps when running the BioEnergetic Food Web model in Julia:
+1. Generate an initial network 
+2. Fix parameters
+3. Simulate
+4. Explore output and plot
+
+### Initial network 
+Before running the BEFW model, we have to construct an initial random network using [the niche model](https://www.nature.com/articles/35004572?cacheBust=1510239451067). The network is characterised by the number of species in the network and its [connectance](https://en.wikipedia.org/wiki/Ecological_network) value. Here, we generate a network of 20 species with a connectance value of 0.15:
 "
 
-# ╔═╡ 76a28a94-4eaa-11eb-3677-0bce632c9572
-# create arrays for alpha and K
-a = [0.92, 1.0, 1.08] # Alpha array
-# 0.92 = promotes coexistence of producer species through "facilitation"
-# 1.0 = Neutral 
-# 1.08 = promotes competitive exclusion among producer species
-
-# ╔═╡ af85ded0-4eaa-11eb-0434-df7f39a2172a
-K = exp10.(range(-1, 1, length=10)) # K array - log scale from 0.1 to 10
-
 # ╔═╡ bc148726-4eaa-11eb-103e-0d40e15d7b95
-reps = 5 # Number of unique food web networks
+begin
+	# generate network
+	A_bool = EcologicalNetworks.nichemodel(20,0.15) 
+	# convert the UnipartiteNetwork object into a matrix of 1s and 0s
+	A = Int.(A_bool.A)
+	# 1s indicate an interaction among species and 0s no interaction. In the packages used here, the networks are directed from i to j (i eats j), describing the direction of the interaction, not of the flow of biomass.
+end
 
 # ╔═╡ bf4f56be-4eaa-11eb-1487-f1747aab8d4e
-md"Then, we create a data frame to store the outputs"
+md"You can check the connectance of A using:"
 
 # ╔═╡ cec73ec2-4eaa-11eb-223d-c3f6707a8ba3
-df = DataFrame(alpha = [], K = [], network = [], diversity = [], stability = [], biomass = [])
+# calculate connectance
+co = sum(A)/(size(A,1)^2)
 
 # ╔═╡ d332dcee-4eaa-11eb-0cf5-33bd128825cd
-md"If you have not already created the `out_objects` folder, creae it now by using:"
+md"### Parameters
+
+Prior to running the BEFW model, you have to create a vector of model parameters using the `model_parameters` function. Numerous parameter values can be specified within the `model_parameters` function, however, most of them have default values that are built into the `BioEnergeticFoodWebs.jl` package. For simplicity, we use the default values here:"
 
 # ╔═╡ f1213a72-4eaa-11eb-2117-49e624afa4fe
-mkdir("out_objects/")
+# create model parameters
+p = model_parameters(A)
+# in the most simple case, the model_parameters function simply requires A
 
 # ╔═╡ f9545abc-4eaa-11eb-3ef5-a7c1f1d61b62
-md"Now we generate our 5 food webs using [the niche model](https://www.nature.com/articles/35004572?cacheBust=1510239451067). Each food web has 20 species and a [connectance](https://en.wikipedia.org/wiki/Ecological_network) of 0.15"
+md"For more information and a full list of the parameters and their defaults values type `?model_parameters` in the REPL. "
+
+# ╔═╡ ab12997a-50ff-11eb-03a6-d952acc44eba
+md"### Simulate
+To run the BEFW model, we first assign biomasses at random to each species and then simulate the biomass dynamics forward using the `simulate` function:"
 
 # ╔═╡ 5a71c630-4eac-11eb-3acd-b173c3cae180
-global networks = [] #this array will store the generated food webs
-
-# ╔═╡ 8102aed6-4eac-11eb-1779-418c7480b59c
 begin
-	global l = length(networks) #this global variable will monitore the number of food webs generated
-	while l < reps # make sure we get 5 networks with the right connectance value (connectance can vary dramatically)
-    	A_bool = EcologicalNetworks.nichemodel(20, 0.15) # Use the niche model from the Ecological Networks package to create a random network with 20 species and a connectance of 0.15
-   		A = Int.(A_bool.A) # Convert the UnipartiteNetwork object that is created into a matrix of 1s and 0s
-    	co = sum(A)/(size(A,1)^2) # Calculate connectance of the network A
-    	if co == 0.15
-        	push!(networks, A) # Save network if connectance = 0.15
-    	end
-    	global l = length(networks) # Keep count 
-	end
+	# assign biomasses
+	bm = rand(size(A,1)) 
+	# select biomasses at random between ]0:1[
+	
+	# simulate
+	out = simulate(p, bm, start=0, stop=2000)
+	# this might take a few seconds
 end
 
 # ╔═╡ 94947bdc-4eac-11eb-0659-afb90ebc53db
-md"**Important note**: In the packages used here, the interactions matrices are directed from i to j (i eats j), describing the direction of the interaction, not of the biomass flow!"
+md"The `simulate` function requires the model parameters `p` and the species biomasses `bm`. In addition, you can specify the timespan of the simulation (using the `start` and `stop` arguments), fix a species extinction threshold (using `extinction_threshold`) and select a solver (using `use`). For more information type `?simulate` in the REPL. "
 
 # ╔═╡ 590f9e6a-4ead-11eb-31f1-2718dd772637
-md"We can now run the simulations:"
+md"### Output and plot
+Once the simulation finishes, the output is stored as a dictionary called `out`. Within `out` there are three entries:
+1. `out[:p]` - lists the parameters
+2. `out[:B]` - biomass of each species through time
+3. `out[:t]` - timesteps (these typically increase in 0.25 intervals)
+
+The biomass dynamics of each species can then be plotted. Similar to the `DifferentialEquations.jl` package, the `BioEnergeticFoodWebs.jl` package also has it's own built in plotting recipe:"
 
 # ╔═╡ 73952ad4-4ead-11eb-20a2-c5fe4d7636f9
-for h in 1:reps # Loop over networks
-    A = networks[h] # Use network h
-    # Here you might want to save a copy of the intial matrix structure, this can done using writedlm()
+# plot
+Plots.plot(out[:t], out[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
+# this may take a minute to render
 
-    for i in 1:length(a) # Loop over a and K
-        for j in 1:length(K)
-            
-            # Create model parameters object:
-            p = model_parameters(A, α = a[i], K = [K[j]], productivity = :competitive) # here you specify any non-default parameters of interest and provide the network matrix (A)
-            # The possible arguments that can be passed into model_parameters are many, make sure you type ?model_parameters in the REPL and review the text, alternatively visit: 
-            # NOTE - In the MEE paper, the following argument is used (productivity = :competitive) to specify that species compete with themselves at a rate of 1.0, and with one another at a rate of α - unfortuntely, this is producing a strange error at the moment - we'll look into it.
+# ╔═╡ 6ffe793e-5100-11eb-1b27-a7c18b6a0130
+md"You'll notice that the biomass dynamics are noisey during the first few hundred time steps, these are the system's transient dynamics. The dynamics then settle into a steady state where the system can be assumed to be at equilbirum. You'll also notice that some species go extinct and some persist, the number of species in the food web can found using `out[:p][:S]` and the identity of those that went extinct using `out[:p][:extinctions]`. 
 
-            # We start every simualtion by assigning starting biomasses to each species
-            bm = rand(size(A,1)) # Select biomass at random between ]0:1[
-            
-            # Run model using the simulate
-            #use=:stiff says you want to use a stiff algorithm to solve the equation, you can also use :nonstiff, it's faster but less accurate
-            #you can change the extinction threshold, here we use the same as in the paper, the default is 1e-6, you shouldn't go lower that 1e-16, which is close to the machine epsilon (type eps() for the exact value) 
-            out = simulate(p, bm, start=0, stop = 2000, use = :stiff, extinction_threshold = eps()) # Requires the model_parameters object and the biomass object. The start and stop arguments are pretty self explanatory.
-            # Again, we advised typing ?simulate into the REPL. 
-            # Here, it might be useful to write out your model object, the best way to do this is using the JDL2 package. JDL2 is a Julia file type that can be read back into Julia easily using the @load macro and can be handled by other coding platform e.g. R. 
-            # You can write out JLD2s file using the @save macro:
-            a_num = a[i] # dummy for alpha - naming purposes
-            K_num = K[j] # dummy for K - naming purposes
-            #@save "out_objects/model_output, network = $h, alpha = $a_num, K = $K_num.jld2" out # save model object in out_objects folder
+The `BioEnergeticFoodWebs.jl` package also has a range of built in functions that conveniently calculate some of the key metrics of the food web, these include the total biomass, the diversity, the species persistence and the temporal stability:"
 
-            # Calculate output metrics
-            diversity = foodweb_evenness(out, last=1000) # 
-            stability = population_stability(out, last=1000)
-            biomass = total_biomass(out, last=1000)
+# ╔═╡ 7da79804-5100-11eb-3d8a-e3ca0d4286be
+# total biomass
+biomass = total_biomass(out, last=1000)
 
-            push!(df, [a[i], K[j], h, diversity, stability, biomass]) # Push each line to our dataframe
+# ╔═╡ 92731e52-5100-11eb-057e-413ff19270c1
+# diversity
+diversity = foodweb_evenness(out, last=1000)
 
-            # Print some stuff... (I like to know how my simualtion is going!)
-            println(("alpha = $a_num", "carrying capacity = $K_num", "network no: $h")) # The $ function is great here. 
+# ╔═╡ 927357c8-5100-11eb-3beb-13e338673f05
+# persistence
+persistence = species_persistence(out, last=1000)
+
+# ╔═╡ 92743f80-5100-11eb-0cba-7b59bceb520e
+# stability 
+stability = population_stability(out, last=1000)
+
+# ╔═╡ 9cc857a0-5100-11eb-2b2c-d7b4230d0adb
+md"Each of these functions will output a single value. This value is the average over the `last` 1000 time steps. For more information, use `?` to access the help files on each function in the REPL (e.g., `?species_persistence`)."
+
+# ╔═╡ a2ce3d84-5100-11eb-0f0c-3be596225064
+md"
+## Variables
+
+Once you've got the BEFW model running, the next step is to vary a variable of interest and rerun. For example, we might be interested in what affect a small change in Z (consumer-resource body mass ratio) has on the estimated food web and its biomass dynamics. The default value for Z is 1.0, but what happens if we increase it to 10.0: 
+"
+
+# ╔═╡ dc43aae2-5100-11eb-24dc-7bf09a6680c7
+begin
+	# set Z
+	Z = 10.0
+	# create model parameters
+	p_z = model_parameters(A, Z = Z)
+	# assign biomasses
+	bm_z = rand(size(A,1)) 
+	# simulate
+	out_z = simulate(p_z, bm_z, start=0, stop=2000)
+	# plot
+	Plots.plot(out_z[:t], out_z[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
+end
+
+# ╔═╡ 04bce3aa-5101-11eb-1fd0-4bb18e4dcbf1
+md"Similarly, what happens if we also increase the carrying capacity (K) of the resource from 1.0 (default) to 5.0:"
+
+# ╔═╡ 0d4bd4c0-5101-11eb-3596-8d51003c1590
+begin
+	# set K
+	K = 5.0
+	# create model parameters
+	p_K = model_parameters(A, Z = Z, K = K)
+	# assign biomasses
+	bm_K = rand(size(A,1)) 
+	# simulate
+	out_K = simulate(p_K, bm_K, start=0, stop=2000)
+	# plot
+	Plots.plot(out_K[:t], out_K[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
+end
+
+# ╔═╡ 2f1c8dba-5101-11eb-2290-4dddd6bf44ef
+md"As you've probably guessed, the main message here is that many variables can be changed in the BEFW model and it's super easy to do so. In the next step, we take this one step further. "
+
+# ╔═╡ 351c26a0-5101-11eb-1061-cb8cb0bc4c5b
+md"
+
+## Experiments 
+The next step is to construct a computional experiment designed to investigate the effect of different variables on population and community dynamics. To do this we construct a gradient of variables as vectors and then simulate the BEFW model multiple times using a loop. To illustrate this, we're going to reproduce example 1 from [Delmas et al. 2016](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713). The aim of this example is to investigate the effect of increasing K on food web diversity. In addition, we're also going to allow α (interspecific competition relative to intraspecific competition) to vary and repeat the experiment 5 times with 5 different initial networks.
+
+First, we define the experiment by creating vectors of our variables and fixing the number of repetitions:
+"
+
+# ╔═╡ 4b75b810-5101-11eb-2532-fdf9a68c5ba0
+α = [0.92, 1.0, 1.08]
+# 0.92 - the interspecific competition is smaller than the intraspecific competition promoting coexistence
+# 1.0 - neutrally stable 
+# 1.08 - the intraspecific competition is smaller the interspecific competition favouring competitive exclusion
+
+# ╔═╡ 6a0665c2-5101-11eb-2cfe-213833c6bd9b
+# vector of K
+k = exp10.(range(-1,1,length=10))
+# log scale from 0.1 to 10
+
+# ╔═╡ 6a069dda-5101-11eb-3609-f77bf4d032e5
+# number of reps
+reps = 5
+
+# ╔═╡ 83a3b522-5101-11eb-0d89-1dcead32bbd9
+md"We then create a dataframe to store the outputs:"
+
+# ╔═╡ 88f98950-5101-11eb-3c14-27934cdf75cb
+# dataframe
+df = DataFrame(α = [], K = [], network = [], diversity = [], stability = [], biomass = [])
+
+# ╔═╡ 920259b4-5101-11eb-0992-e105ad8c093a
+md"and construct a `while` loop to generate the 5 unique initial networks, each of which contains 20 species with a connectance value of 0.15:"
+
+# ╔═╡ a3b42a0c-5101-11eb-0365-f3cb912347a0
+begin
+	# list to store networks
+	global networks = []
+	# monitoring variable 
+	global l = length(networks)
+	# while loop
+	while l < reps
+	    # generate network
+	    A_bool = EcologicalNetworks.nichemodel(20,0.15) 
+	    # convert the UnipartiteNetwork object into a matrix of 1s and 0s
+	    A = Int.(A_bool.A)
+	    # calculate connectance
+	    co = sum(A)/(size(A,1)^2)
+	    # ensure that connectance = 0.15
+	    if co == 0.15
+	        push!(networks, A)
+	        # save network is co = 0.15
+	    end
+	    global l = length(networks)
+	end
+end
+
+# ╔═╡ b487c396-5101-11eb-0d9c-751b85d44e2b
+md"We can then run the simulations by looping, using nested `for` loops, over the unique values of α and K, as well as the 5 unique initial networks. After each simulation we will save each output object to our active project as a `JLD2` file and store any output metrics of interest in our dataframe:"
+
+# ╔═╡ cc09f6f8-5101-11eb-0b54-c5f0ff76ce8a
+# loop over networks
+for h in 1:reps
+    A = networks[h]
+    # here, you might want to save a copy of the initial network using writedlm(A)
+
+    # loop over α
+    for i in 1:length(α) 
+        # loop over K
+        for j in 1:length(k)
+
+        # create model parameters
+
+        p = model_parameters(A, α = α[i], K = k[j])
+        # assign biomasses
+        bm = rand(size(A,1)) 
+        # simulate
+        out = simulate(p, bm, start=0, stop=2000)
+
+        # dummy naming variables
+        α_num = α[i]
+        K_num = k[j]
+        # save `out` as a JLD2 object using the @save macro:
+        @save "out_objects/model_output, network = $h, alpha = $α_num, K = $K_num.jld2" out
+
+        # calculate output metrics
+        diversity = foodweb_evenness(out, last = 1000)
+        stability = population_stability(out, last = 1000)
+        biomass = total_biomass(out, last = 1000)
+
+        # push to df
+        push!(df, [α[i], k[j], h, diversity, stability, biomass])
+
+        # print some stuff - see how the simulation is progressing
+        println(("α = $α_num", "K = $K_num", "network = $h"))
         end
     end
 end
-# NOTE - if you remove the @save command the code gets alot faster
+# the code will be much faster if you remove the @save command
 
-# ╔═╡ 9ad396b2-4ead-11eb-3397-27deb2fac788
-md"
-Now we can explore the outputs.
+# ╔═╡ eacd9662-5101-11eb-2695-297466aed511
+md"We can then explore the outputs and plot our results. Here, instead of using the built in plotting recipe, we will construct a plot that matches figure 1 in [Delmas et al. 2016](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12713). Specifically, we will plot food web diversity (y-axis) as a function of K (x-axis) and α (colour):"
 
-The simulation objects are stored asDictionnaries called `out`. You can read in an model object (feel free to pick an out object in your `out_objects` folder).
-"
+# ╔═╡ fdbf6606-5101-11eb-3315-f9b859e39453
+# explore output
+describe(df)
 
-# ╔═╡ 8eff0720-4ead-11eb-0162-23d98c504782
-@load "out_objects/model_output, network = 1, alpha = 0.92, K = 0.1.jld2" # Will load the out object
-# The out object has 3 slots:
-# (1) :p - lists the model parameters
-# (2) :B - estimated biomass (species * time)
-# (3) :t - time steps of the model (this won't be 1,2,3.... because 'time steps' refers to the time step of the ODE solver - usually steps of 0.25)
+# ╔═╡ 0555ac2c-5102-11eb-2343-e5467d420ffe
+first(df,6)
 
-# ╔═╡ 186967da-4eae-11eb-3c46-69fc62e62802
-bio = out[:B] # extract biomass
+# ╔═╡ 0555e890-5102-11eb-3386-bd2f3d83635c
+last(df,6)
 
-# ╔═╡ 25553156-4eae-11eb-1a1d-33a9342a65fa
-time = out[:t] # extract time steps
+# ╔═╡ 05574034-5102-11eb-3e96-0df48a0168ea
+# plot
+# initialise an empty plot
+pl = Plots.plot([NaN], [NaN],
+                label = "",
+                ylims = (0,1.1),
+                leg = :bottomright,
+                foreground_colour_legend = nothing,
+                xticks = (log10.(k), string.(round.(k, digits = 1))),
+                xlabel = "Carrying capacity",
+                ylabel = "Food web diversity (evenness)")
 
-# ╔═╡ 2b6ab07a-4eae-11eb-1202-2987cf72b5bc
-plot(time, bio, legend = false, ylabel = "biomass", xlabel = "time", ylims = (0,0.5)) # plot species biomass throught time - typically the biomass will either flatline (stable dynamics) or will enter transient dynamics (up and downs etc)
+# ╔═╡ 0571ceb6-5102-11eb-1b80-235772412947
+# set marker shapes
+shp = [:square, :diamond, :utriangle]
 
-# ╔═╡ fbcd149c-4eb0-11eb-0745-1b5d4c48cfee
-sp = out[:p][:S] # Number of species in the system - should be 20
+# ╔═╡ 057304ea-5102-11eb-2c36-e368b5f92e3a
+# set line types
+ls = [:solid, :dash, :dot]
 
-# ╔═╡ 39102932-4eae-11eb-36ac-534ef3f4fd77
-# Some species reach a biomass of approx. 0 during the simulations and are considered as extinct at the end of the simulations
-extinct = out[:p][:extinctions] # Identity of extinct species?
+# ╔═╡ 05897ff2-5102-11eb-1c7b-fb51f3443175
+# set colours
+clr = [RGB(174/255, 139/255, 194/255), RGB(188/255, 188/255, 188/255), RGB(124/255, 189/255, 122/255)]
+# when we define colours in Julia they are printed 
 
-# ╔═╡ 3d233c30-4eae-11eb-36e9-83e20800c624
-pers = 1 - length(extinct) / sp # Persistence = proportion of species remaining
+# ╔═╡ 05967216-5102-11eb-3c1f-4fa381ee8c5f
+# set legend labels
+lbl = ["Coexistence", "Neutral", "Exclusion"]
 
-# ╔═╡ 5e80eb3c-4eae-11eb-3177-db8b9c53fec8
-describe(df) # prints the dataframe
-
-# ╔═╡ 65256c38-4eae-11eb-110f-fbf4b36e3bff
-last(df,6) # last 6 rows
-
-# ╔═╡ 6a3d6b62-4eae-11eb-2d0a-4ba8bbe18ad8
-first(df, 6) # first 6 rows
-
-# ╔═╡ 71f39ac0-4eae-11eb-22bd-8537a3283cc1
-md"
-Now that we know more about the simulations and the outputs, let's reproduce fig. 1.
-- y = foodweb diversity measured as their evenness (which quantifies how close in biomass each species in a food web is)
-- x = carrying capacity 
-- by = strength of inter- vs intraspecific competition
-"
-
-# ╔═╡ a0b4edd4-4eae-11eb-3d1e-5f7f1f5cda75
-p = plot([NaN], [NaN]
-	, label = ""
-	, ylims = (0,1.1)
-	, leg = :bottomright
-	, foreground_color_legend = nothing
-	, xticks = (log10.(K), string.(round.(K, digits = 1)))
-	, xlabel = "Carrying capacity"
-	, ylabel = "Food web diversity (evenness)") #initialize an empty plot
-
-# ╔═╡ a58679b6-4eae-11eb-2dcd-0f94734e4a90
-shp = [:square, :diamond, :utriangle] #shapes of the markers
-
-# ╔═╡ 27a6e230-4eb1-11eb-3fbd-a14ae81f4431
-md"Note that when we define colors in Julia, they are printed, that's pretty cool:"
-
-# ╔═╡ af03b18e-4eae-11eb-1de9-51286ad67174
-clr = [RGB(174/255, 139/255, 194/255), RGB(188/255, 188/255, 188/255), RGB(124/255, 189/255, 122/255)] #define the colors (you can see the Colors package for more information on how to define colors, or the palettes available)
-
-# ╔═╡ ce0c078e-4eae-11eb-115a-356056716a9a
-ls = [:solid, :dash, :dot] #line styles
-
-# ╔═╡ d4b1b9bc-4eae-11eb-00d7-6735a961c377
-lbl = ["Coexistence", "Neutral", "Exclusion"] #legend labels
-
-# ╔═╡ da976854-4eae-11eb-0f53-25aca51dc56b
-#now make the plot
-for (i, α) in enumerate(a)
-    tmp = df[df.alpha .== α,:] #subset values of interest
-    tmp = tmp[.!(isnan.(tmp.diversity)),:] #remove NaN values
+# ╔═╡ 05abd9a0-5102-11eb-0c9d-2de08b81bb42
+# make the plot
+for (i, α) in enumerate(α)
+    # subset
+    tmp = df[df.α .== α, :]
+    # remove NaN values
+    tmp = tmp[.!(isnan.(tmp.diversity)), :]
+    # calculate mean across reps
     meandf = by(tmp, :K, :diversity => mean)
-	l = i == 1 ? lbl[i] : ""  
-    plot!(p, log10.(meandf.K), meandf.diversity_mean
-        , msc = clr[i], mc = :white, msw = 3, markershape = shp[i]
-        , linestyle = ls[i], lc =  clr[i], lw = 2
-        , label = lbl[i]
-        , seriestype = [:line :scatter])
+    # command to avoid printing legends multiple times
+    l = i == 1 ? lbl[i] : ""
+    # add to pl
+    plot!(pl, log10.(meandf.K), meandf.diversity_mean,
+              msc = clr[i],
+              mc = :white,
+              msw = 3,
+              markershape = shp[i],
+              linestyle = ls[i],
+              lc = clr[i],
+              lw = 2,
+              label = lbl[i],
+              seriestype = [:line :scatter])
 end
 
-# ╔═╡ 6d6eb46c-4eb1-11eb-338a-ab3a47757826
-# display the plot 
-plot(p)
+# ╔═╡ 05bb7e6c-5102-11eb-3f77-83f95a11bfcc
+# display plot
+plot(pl)
 
-# ╔═╡ 7c28a770-4eb2-11eb-0f77-473cad356c6c
-# Write out your data
+# ╔═╡ 241d8080-5102-11eb-3c09-351c80043bd8
+md"Finally, we can save our dataframe as a .csv file:"
+
+# ╔═╡ 29440f14-5102-11eb-3a01-03d0ec68eeb7
+# save
 CSV.write("My_data.csv", df)
 
 # ╔═╡ Cell order:
-# ╠═c0ebcd72-4185-11eb-1f7a-495100d90da7
+# ╟─c0ebcd72-4185-11eb-1f7a-495100d90da7
 # ╟─02d42d26-4ea9-11eb-0037-29e78216697e
 # ╟─4d456ac8-4ea9-11eb-24be-3181d81cea4e
+# ╟─502f1a3a-50fd-11eb-3016-a90065cdfa60
+# ╠═6905b3f2-50fd-11eb-2974-db99d78e7460
 # ╟─6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
 # ╠═58837362-4ea9-11eb-203b-c1ddc9983e1c
 # ╟─38e8575e-4eaa-11eb-2843-cbefb55fb1f9
 # ╠═44e9c512-4eaa-11eb-2a1a-53b024da1311
 # ╟─e20123b4-4ea9-11eb-3e7c-570c8c04e3ec
-# ╠═76a28a94-4eaa-11eb-3677-0bce632c9572
-# ╠═af85ded0-4eaa-11eb-0434-df7f39a2172a
+# ╠═daa5d4c8-50fe-11eb-3ced-29c48292f7b2
 # ╠═bc148726-4eaa-11eb-103e-0d40e15d7b95
 # ╟─bf4f56be-4eaa-11eb-1487-f1747aab8d4e
 # ╠═cec73ec2-4eaa-11eb-223d-c3f6707a8ba3
 # ╟─d332dcee-4eaa-11eb-0cf5-33bd128825cd
 # ╠═f1213a72-4eaa-11eb-2117-49e624afa4fe
 # ╟─f9545abc-4eaa-11eb-3ef5-a7c1f1d61b62
+# ╟─ab12997a-50ff-11eb-03a6-d952acc44eba
 # ╠═5a71c630-4eac-11eb-3acd-b173c3cae180
-# ╠═8102aed6-4eac-11eb-1779-418c7480b59c
 # ╟─94947bdc-4eac-11eb-0659-afb90ebc53db
 # ╟─590f9e6a-4ead-11eb-31f1-2718dd772637
 # ╠═73952ad4-4ead-11eb-20a2-c5fe4d7636f9
-# ╟─9ad396b2-4ead-11eb-3397-27deb2fac788
-# ╠═8eff0720-4ead-11eb-0162-23d98c504782
-# ╠═186967da-4eae-11eb-3c46-69fc62e62802
-# ╠═25553156-4eae-11eb-1a1d-33a9342a65fa
-# ╠═2b6ab07a-4eae-11eb-1202-2987cf72b5bc
-# ╠═fbcd149c-4eb0-11eb-0745-1b5d4c48cfee
-# ╠═39102932-4eae-11eb-36ac-534ef3f4fd77
-# ╠═3d233c30-4eae-11eb-36e9-83e20800c624
-# ╠═5e80eb3c-4eae-11eb-3177-db8b9c53fec8
-# ╠═65256c38-4eae-11eb-110f-fbf4b36e3bff
-# ╠═6a3d6b62-4eae-11eb-2d0a-4ba8bbe18ad8
-# ╟─71f39ac0-4eae-11eb-22bd-8537a3283cc1
-# ╠═a0b4edd4-4eae-11eb-3d1e-5f7f1f5cda75
-# ╠═a58679b6-4eae-11eb-2dcd-0f94734e4a90
-# ╟─27a6e230-4eb1-11eb-3fbd-a14ae81f4431
-# ╠═af03b18e-4eae-11eb-1de9-51286ad67174
-# ╠═ce0c078e-4eae-11eb-115a-356056716a9a
-# ╠═d4b1b9bc-4eae-11eb-00d7-6735a961c377
-# ╠═da976854-4eae-11eb-0f53-25aca51dc56b
-# ╠═6d6eb46c-4eb1-11eb-338a-ab3a47757826
-# ╠═7c28a770-4eb2-11eb-0f77-473cad356c6c
+# ╟─6ffe793e-5100-11eb-1b27-a7c18b6a0130
+# ╠═7da79804-5100-11eb-3d8a-e3ca0d4286be
+# ╠═92731e52-5100-11eb-057e-413ff19270c1
+# ╠═927357c8-5100-11eb-3beb-13e338673f05
+# ╠═92743f80-5100-11eb-0cba-7b59bceb520e
+# ╟─9cc857a0-5100-11eb-2b2c-d7b4230d0adb
+# ╟─a2ce3d84-5100-11eb-0f0c-3be596225064
+# ╠═dc43aae2-5100-11eb-24dc-7bf09a6680c7
+# ╟─04bce3aa-5101-11eb-1fd0-4bb18e4dcbf1
+# ╠═0d4bd4c0-5101-11eb-3596-8d51003c1590
+# ╟─2f1c8dba-5101-11eb-2290-4dddd6bf44ef
+# ╟─351c26a0-5101-11eb-1061-cb8cb0bc4c5b
+# ╠═4b75b810-5101-11eb-2532-fdf9a68c5ba0
+# ╠═6a0665c2-5101-11eb-2cfe-213833c6bd9b
+# ╠═6a069dda-5101-11eb-3609-f77bf4d032e5
+# ╟─83a3b522-5101-11eb-0d89-1dcead32bbd9
+# ╠═88f98950-5101-11eb-3c14-27934cdf75cb
+# ╟─920259b4-5101-11eb-0992-e105ad8c093a
+# ╠═a3b42a0c-5101-11eb-0365-f3cb912347a0
+# ╟─b487c396-5101-11eb-0d9c-751b85d44e2b
+# ╠═cc09f6f8-5101-11eb-0b54-c5f0ff76ce8a
+# ╟─eacd9662-5101-11eb-2695-297466aed511
+# ╠═fdbf6606-5101-11eb-3315-f9b859e39453
+# ╠═0555ac2c-5102-11eb-2343-e5467d420ffe
+# ╠═0555e890-5102-11eb-3386-bd2f3d83635c
+# ╠═05574034-5102-11eb-3e96-0df48a0168ea
+# ╠═0571ceb6-5102-11eb-1b80-235772412947
+# ╠═057304ea-5102-11eb-2c36-e368b5f92e3a
+# ╠═05897ff2-5102-11eb-1c7b-fb51f3443175
+# ╠═05967216-5102-11eb-3c1f-4fa381ee8c5f
+# ╠═05abd9a0-5102-11eb-0c9d-2de08b81bb42
+# ╠═05bb7e6c-5102-11eb-3f77-83f95a11bfcc
+# ╟─241d8080-5102-11eb-3c09-351c80043bd8
+# ╠═29440f14-5102-11eb-3a01-03d0ec68eeb7
