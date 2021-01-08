@@ -1,7 +1,7 @@
 # VS-code-for-Julia
 This repository provides a tutorial for using Julia in the Visual Studio Code by Chris Griffiths, Eva Delmas and Andrew Beckerman. 
 
-The tutorial takes the form of 4 documents (available as .html and .pdf files - see `docs`) with the following aims:
+The tutorial takes the form of 4 documents (available as .html and .pdf files - see `doc`) with the following aims:
   1. Getting started - instructions on how to install and run Julia in VS Code, includes details on Julia's package manager
   2. Basic Julia commands - covers data manipulation, loops and functions and plotting in Julia 
   3. Differential Equations in Julia - introduces the `DifferentialEquations.jl` package and provides a working food web example
