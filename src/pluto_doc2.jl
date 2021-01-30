@@ -24,12 +24,14 @@ This document covers the following:
 - Plots
 - Scoping
 There is also a section at the end with some "Quick tips". 
+
+Just a heads up, a feature of the markdown notebook (Pluto) we have used to construct these tutorial documents is that the code output appears above the code chunk. 
 """
 
 # ╔═╡ cc6b8f9a-4ed3-11eb-1585-a54395c39dab
 md"## Load packages
 
-You'll need a few packages for this tutorial:
+You'll need a few packages for this tutorial (this might take a few minutes, don't panic):
 "
 
 # ╔═╡ fb80c0ea-4ed3-11eb-370b-53a2b1e6f267

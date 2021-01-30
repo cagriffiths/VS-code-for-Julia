@@ -31,6 +31,10 @@ md"""
 
 Navigate to [this page](https://julialang.org/downloads/) and follow the platform-specific instructions to dowload and install Julia (we recommend installing the current stable release). 
 
+![Installing Julia]
+(./images/Install_Julia.png)
+
+
 2. Visual Studio Code
 
 Navigate to [this page](https://visualstudio.microsoft.com/) to dowload and install
@@ -47,7 +51,7 @@ Pair Colorizer.
 
 To install Julia in VS Code do the following (you only need to do this once):
 - open VS Code (you'll see the welcome page)
-- navigate to the marketplace (fourth symbol down in the activity bar - vertical panel on the lefthand side of the screen)
+- navigate to the marketplace (5th symbol down in the activity bar - vertical panel on the lefthand side of the screen)
 - search for Julia
 - install [Julia](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia), this extension provides support for the Julia programming language
 - while you're there, also search for and install [Julia Formatter](https://marketplace.visualstudio.com/items?itemName=singularitti.vscode-julia-formatter), this extension will help you write clean code that is easier to read
@@ -128,19 +132,13 @@ There are two ways to double check that you are actually working within your pro
 - activation is done automatically in VS Code, however, it remains an important point as activation ensures that your project is 'active' and can use package operations
 Note: the dot `.` stands for the current working directory. You could also use `pwd` and activate using `Pkg.activate(pwd())` or `Pkg.activate("path/to/folder/JuliaTuto")`. 
 
-3. Working on someone else's project If you are working on someone else's
-project (or on your project but from a different computer), you will want to
-use the same packages and package versions. To do this, first activate the
-directory (see point 2) and then install all the packages and dependencies
-stored in the `Project.toml` (and `Manifest.toml`) by typing either `]
-instantiate` in the REPL or `Pkg.instantiate()` in the script. This is
-incredibly useful as it means you can ensure that you're working from an
-identical project environment with a single command.
+3. Working on someone else's project 
+If you are working on someone else's project (or on your project but from a different computer), you will want to use the same packages and package versions. To do this, first activate the directory (see point 2) and then install all the packages and dependencies stored in the `Project.toml` (and `Manifest.toml`) by typing either `] instantiate` in the REPL or `Pkg.instantiate()` in the script. This is incredibly useful as it means you can ensure that you're working from an identical project environment with a single command.
 
 ## Package manager
 
 Now that we are all set up, we are going to install a package, check the
-project's status and remove a package.
+project's status and remove a package. As this will be your first time installing a given package (e.g., Plots), it might take a couple of minutes to run the installation. 
 
 - type `] add Plots` in the REPL (or `Pkg.add("Plots")` in your script and execute using Ctrl-Enter)
 - you just installed the Plots package (equivalent to Base plots in R) to your project
@@ -168,6 +166,8 @@ md"""
 - to remove a package from your project, type `] rm Plots` in the REPL (or `Pkg.rm("Plots")` in your script and execute)
 - now if you look at your directory status using `st` the list should be empty
 
+Remember, when using your package manager from the REPL via `]`, you exit it using the backspace. 
+
 We have tested these tutorials with a specific list of packages. Consequently, we recommend you download the `Project.toml` and `Manifest.toml` files from [this link](https://github.com/cagriffiths/VS-code-for-Julia/)
 and replace your `Manifest.toml` and `Project.toml` with these files. Then activate (if you've not done so already) and instantiate (pop back a few steps for a recap if needed). Here's a script to this from VS Code using Julia: 
 
@@ -190,7 +190,7 @@ You should see the following in the REPL (the only difference might be your proj
 ```julia; eval = false
 (JuliaTuto) pkg> st
 Status `~/Desktop/Julia - VS code - how to/Project.toml`
-  [9b49b652] BioEnergeticFoodWebs v1.1.2 `https://github.com/PoisotLab/BioEnergeticFoodWebs.jl.git#fix_rates_normalization`
+  [9b49b652] BioEnergeticFoodWebs v1.1.2
   [336ed68f] CSV v0.7.10
   [a93c6f00] DataFrames v0.21.8
   [0c46a032] DifferentialEquations v6.15.0
@@ -199,10 +199,12 @@ Status `~/Desktop/Julia - VS code - how to/Project.toml`
   [c91e804a] Gadfly v1.3.1
   [033835bb] JLD2 v0.2.4
   [91a5bcdd] Plots v1.6.12
+  [c3e4b0f8] Pluto v0.12.18
   [ce6b1742] RDatasets v0.6.10
   [44d3d7a6] Weave v0.10.6
   [8bb1440f] DelimitedFiles
   [9a3f8284] Random
+  [10745b16] Statistics
 ```
 
 """
@@ -210,7 +212,7 @@ Status `~/Desktop/Julia - VS code - how to/Project.toml`
 # ╔═╡ Cell order:
 # ╟─45396dec-4eb4-11eb-3bd5-b71f3a3e1a22
 # ╟─1e32e4fc-4eb5-11eb-1053-f73699c1f8d0
-# ╟─27fe2e06-4eb5-11eb-0ba3-07964c71171c
+# ╠═27fe2e06-4eb5-11eb-0ba3-07964c71171c
 # ╟─31cd2b80-4eb5-11eb-225e-33802dfc5921
 # ╟─3c7f1fca-4eb5-11eb-0e7b-71824ff2d6fb
 # ╠═4cec8ef6-4eb5-11eb-0433-d317d947169c
