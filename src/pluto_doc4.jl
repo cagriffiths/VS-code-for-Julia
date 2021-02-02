@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.20
 
 using Markdown
 using InteractiveUtils
@@ -41,6 +41,11 @@ md"
 
 One of main advantages of running food web models in Julia is that simulations are fast and can be readily stored in your active project. With this in mind, make a new folder in your project called `out_objects` (right click > New Folder). Alternatively, you can create an `out_objects` folder directly using `mkdir()`."
 
+# ╔═╡ 932cc4ca-654a-11eb-1601-0f772477529f
+# We've already create a folder called out_objects in our project but an example of mkdir() would be:
+mkdir("example_folder")
+# if you haven't created an out_objects folder yet, simply replace "example_folder" with "out_objects". 
+
 # ╔═╡ daa5d4c8-50fe-11eb-3ced-29c48292f7b2
 md"
 ## Running the BEFW
@@ -61,8 +66,12 @@ begin
 	A_bool = EcologicalNetworks.nichemodel(20,0.15) 
 	# convert the UnipartiteNetwork object into a matrix of 1s and 0s
 	A = Int.(A_bool.A)
-	# 1s indicate an interaction among species and 0s no interaction. In the packages used here, the networks are directed from i to j (i eats j), describing the direction of the interaction, not of the flow of biomass.
 end
+
+# ╔═╡ c8ca2428-654b-11eb-3f37-b112b0a6192c
+md"
+In the above code chunk, we are saving the output from running the `nichemodel` as `A_bool` and then using the `A` part of `A_bool` to construct our initial random network. Within `A`, 1s indicate an interaction among species and 0s no interaction. In the packages used here, the networks are directed from `i` (rows) to `j` (columns), describing the direction of the interaction (i eats j), not of the flow of biomass.
+"
 
 # ╔═╡ bf4f56be-4eaa-11eb-1487-f1747aab8d4e
 md"You can check the connectance of A using:"
@@ -70,6 +79,11 @@ md"You can check the connectance of A using:"
 # ╔═╡ cec73ec2-4eaa-11eb-223d-c3f6707a8ba3
 # calculate connectance
 co = sum(A)/(size(A,1)^2)
+
+# ╔═╡ a408e704-654c-11eb-27fc-2933d9e9515f
+md"
+Here, connectance is calculated as the number of realised links (sum of 1s in `A`) divided by the number of species in `A` squared. This end part (species^2) describes the maximum number of possible links in the network `A`. 
+"
 
 # ╔═╡ d332dcee-4eaa-11eb-0cf5-33bd128825cd
 md"### Parameters
@@ -82,7 +96,13 @@ p = model_parameters(A)
 # in the most simple case, the model_parameters function simply requires A
 
 # ╔═╡ f9545abc-4eaa-11eb-3ef5-a7c1f1d61b62
-md"For more information and a full list of the parameters and their defaults values type `?model_parameters` in the REPL. "
+md"For more information and a full list of the parameters and their defaults values type `?model_parameters` in the REPL. 
+
+If you want to view, check or extract any of the parameter values in `p` use the `p[:name]` notation. For example, you can view a vector of each species' trophic rank using:"
+
+# ╔═╡ c2f6b62c-654d-11eb-18c8-fde307cc05b1
+# view trophic ranks:
+p[:trophic_rank]
 
 # ╔═╡ ab12997a-50ff-11eb-03a6-d952acc44eba
 md"### Simulate
@@ -93,6 +113,7 @@ begin
 	# assign biomasses
 	bm = rand(size(A,1)) 
 	# select biomasses at random between ]0:1[
+	# as an alternative, you could assign all species the same biomass of 1 using bm = ones(size(A,1)) 
 	
 	# simulate
 	out = simulate(p, bm, start=0, stop=2000)
@@ -117,7 +138,7 @@ Plots.plot(out[:t], out[:B], legend = true, ylabel = "Biomass", xlabel = "Time")
 # this may take a minute to render
 
 # ╔═╡ 6ffe793e-5100-11eb-1b27-a7c18b6a0130
-md"You'll notice that the biomass dynamics are noisey during the first few hundred time steps, these are the system's transient dynamics. The dynamics then settle into a steady state where the system can be assumed to be at equilbirum. You'll also notice that some species go extinct and some persist, the number of species in the food web can found using `out[:p][:S]` and the identity of those that went extinct using `out[:p][:extinctions]`. 
+md"You'll notice that the biomass dynamics are noisey during the first few hundred time steps, these are the system's transient dynamics. The dynamics then settle into a steady state where the system can be assumed to be at equilbirum. You'll also notice that some species go extinct and some persist, the initial number of species in the food web (20 in this case) can found using `out[:p][:S]` and the identity of those that went extinct using `out[:p][:extinctions]`. 
 
 The `BioEnergeticFoodWebs.jl` package also has a range of built in functions that conveniently calculate some of the key metrics of the food web, these include the total biomass, the diversity, the species persistence and the temporal stability:"
 
@@ -149,7 +170,7 @@ Once you've got the BEFW model running, the next step is to vary a variable of i
 
 # ╔═╡ dc43aae2-5100-11eb-24dc-7bf09a6680c7
 begin
-	# set Z
+	# set Z (has to be a floating number not an integer)
 	Z = 10.0
 	# create model parameters
 	p_z = model_parameters(A, Z = Z)
@@ -166,8 +187,8 @@ md"Similarly, what happens if we also increase the carrying capacity (K) of the 
 
 # ╔═╡ 0d4bd4c0-5101-11eb-3596-8d51003c1590
 begin
-	# set K
-	K = 5.0
+	# set K (has to be a floating number not an integer)
+	K = 5.0 
 	# create model parameters
 	p_K = model_parameters(A, Z = Z, K = K)
 	# assign biomasses
@@ -179,7 +200,7 @@ begin
 end
 
 # ╔═╡ 2f1c8dba-5101-11eb-2290-4dddd6bf44ef
-md"As you've probably guessed, the main message here is that many variables can be changed in the BEFW model and it's super easy to do so. In the next step, we take this one step further. "
+md"As you've probably guessed, the main message here is that many variables can be changed in the BEFW model and it's super easy to do so. Some changes will have large effects and some not so much. In the next step, we take this one step further. "
 
 # ╔═╡ 351c26a0-5101-11eb-1061-cb8cb0bc4c5b
 md"
@@ -367,13 +388,17 @@ CSV.write("My_data.csv", df)
 # ╟─38e8575e-4eaa-11eb-2843-cbefb55fb1f9
 # ╠═44e9c512-4eaa-11eb-2a1a-53b024da1311
 # ╟─e20123b4-4ea9-11eb-3e7c-570c8c04e3ec
+# ╠═932cc4ca-654a-11eb-1601-0f772477529f
 # ╟─daa5d4c8-50fe-11eb-3ced-29c48292f7b2
 # ╠═bc148726-4eaa-11eb-103e-0d40e15d7b95
+# ╟─c8ca2428-654b-11eb-3f37-b112b0a6192c
 # ╟─bf4f56be-4eaa-11eb-1487-f1747aab8d4e
 # ╠═cec73ec2-4eaa-11eb-223d-c3f6707a8ba3
+# ╟─a408e704-654c-11eb-27fc-2933d9e9515f
 # ╟─d332dcee-4eaa-11eb-0cf5-33bd128825cd
 # ╠═f1213a72-4eaa-11eb-2117-49e624afa4fe
 # ╟─f9545abc-4eaa-11eb-3ef5-a7c1f1d61b62
+# ╠═c2f6b62c-654d-11eb-18c8-fde307cc05b1
 # ╟─ab12997a-50ff-11eb-03a6-d952acc44eba
 # ╠═5a71c630-4eac-11eb-3acd-b173c3cae180
 # ╟─94947bdc-4eac-11eb-0659-afb90ebc53db

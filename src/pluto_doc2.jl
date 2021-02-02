@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.20
 
 using Markdown
 using InteractiveUtils
@@ -119,6 +119,9 @@ md"Note - Julia is like R and Python, it can infer the type of object (Integer, 
 # ╔═╡ d7d77a8e-4ed4-11eb-2c79-f58ad22e8e5d
 pi_sum1 = Float64(3.141592)
 
+# ╔═╡ 6202905e-64b5-11eb-1efc-6945db996844
+md"For those of you that are interested, a floating-point object (a Float) is a number that has a decimal place. An Int object is an integer, a number without a decimal place, whereas an Irrational object is a specific type of Float used only for representing some irrational numbers of special significance (e.g. π and γ). The 64 purely refers to 64-bit which is the type of processor your computer uses, most modern computers are 64-bit." 
+
 # ╔═╡ ddd93238-4ed4-11eb-1ce1-338db5b20cb4
 # you can then check the object type using:
 typeof(pi_sum), typeof(pi_sum2) # note here that by using the preallocated variable pi, you are actually using an object of type Irrational (a specific type of Float)
@@ -227,6 +230,7 @@ boolvec1 = falses(10)
 
 # ╔═╡ 8111e134-4ed5-11eb-27a8-0f16a5031f34
 boolvec2 = trues(10)
+# trues or falses may also appear as 0's and 1's - they are interchangable. 
 
 # ╔═╡ 840e1588-4ed5-11eb-35a1-cb1441dbdcab
 md"""
@@ -251,14 +255,15 @@ md"What's nice about Julia is that you don't have to provide an nrow or size arg
 range_array = range(0, 10, length = 11) 
 
 # ╔═╡ 9e0fb8b0-4ed5-11eb-157c-6f6666db78e5
-# alternative:
-range_array2 = [0:1:10]
-
-# ╔═╡ 07c1f304-4ed6-11eb-18f7-bf1d4a5d6317
-typeof(range_array) # note that this produces an object of type StepRange and not a vector
+begin
+	# alternative:
+	range_array2 = [0:1:10] # start:step:end
+	typeof(range_array2)
+	# note that this produces an object of type StepRange and not a vector. An object of type StepRange is a special type of an array where the step between each element is constant, and the range is defined in terms of a start and a stop.
+end
 
 # ╔═╡ 0c22754a-4ed6-11eb-39c8-9de32eb01c17
-# you can turn range_array2 into a vector by "collecting": 
+# you can turn range_array into a vector by "collecting": 
 range_collected = collect(range_array)
 
 # ╔═╡ 12f07ca0-4ed6-11eb-1cf1-3150bd2167b5
@@ -333,7 +338,8 @@ mat[1:2,3]
 
 # ╔═╡ 68b97d8a-4ed6-11eb-083e-75cc11fbb2a8
 # if you provide 1 value:
-mat[5] # it reads the matrix row-wise and then column-wise (hence mat[5] = 3 and not 5)
+mat[5] 
+# it reads the matrix row-wise and then column-wise, so it reads row1col1, row2col1, row1col2, row2col2, etc. Hence mat[5] = 3 and not 5. 
 
 # ╔═╡ 6781a78a-4ed6-11eb-1e83-510e7be00459
 md"""
@@ -347,11 +353,12 @@ To initialise a dataframe you use the `DataFrame` function from the `DataFrames`
 
 # ╔═╡ 8768a652-4ed6-11eb-1f63-17c25554bc88
 # create a dataframe with three columns
-dat = DataFrame(col1=[], col2=[], col3=[]) # as in section 1.7, we use [] to specify an empty column of any type and size
+dat = DataFrame(col1=[], col2=[], col3=[]) # as in section 1.7, we use [] to specify an empty column of any type and size. 
 
 # ╔═╡ 8e10b7f6-4ed6-11eb-09b0-4d4815d99155
 # you can also specify column type using:
 dat1 = DataFrame(col1=Float64[], col2=Int64[], col3=Float64)
+# Try hovering over the above image to reveal the column type. 
 
 # ╔═╡ 8e11fd14-4ed6-11eb-2e93-9936795dc0ca
 # and provide informative column titles using:
@@ -403,7 +410,7 @@ y2 = rand((9,11))
 z2 = rand((10.0, 80.00))
 
 # ╔═╡ bf6dcb9a-4ed6-11eb-2135-918cfb78b9b3
-push!(dat, [x,y,z])
+push!(dat, [x2,y2,z2])
 
 # ╔═╡ bf7ef97e-4ed6-11eb-384f-cb1767c18946
 # look at a dataframe:
@@ -427,6 +434,11 @@ dat[:,1] # : all rows
 # ╔═╡ bfd5ee96-4ed6-11eb-3638-6b4bed3c63db
 # alternatively, you can select columns using their names:
 dat2[:species]
+
+# ╔═╡ df818ea6-64bd-11eb-2ccf-ff6ed64195ef
+md"""
+You can view your dataframes and any other variables of interest by clickling on the `Julia explorer: Julia workspace` symbol in the activity bar (three circles). You can then look at them in more detail by clicking the sideways arrow (when allowed). The explorer is very similar to R's workspace and global environment (top right hand panel in RStudio). 
+"""
 
 # ╔═╡ bdcb817e-4ed6-11eb-2cc2-331edb5aae22
 md"""
@@ -468,18 +480,17 @@ Functions start with the word `function` and end with the word `end`. To store s
 """
 
 # ╔═╡ 768349ea-4ed7-11eb-1b9b-2ff91e39460e
-# simple function:
-function plus_two(x)
-    return x + 2
+begin
+	# simple function:
+	x_new = 33.0 
+	function plus_two(x)
+	    return x + 2
+	end
 end
-
-# ╔═╡ 91dc1438-4ed7-11eb-357a-e358200dee3a
-# input variable:
-x3 = 17
 
 # ╔═╡ 91dda1c2-4ed7-11eb-3a53-7b126c8c99e6
 # run functions:
-z3 = plus_two(x)
+z3 = plus_two(x_new)
 
 # ╔═╡ 91efdebe-4ed7-11eb-1918-433e8e3112f3
 # functions can also be witten to take no inputs:
@@ -504,15 +515,11 @@ function bodyweight(BW_earth, g = 9.81)
 end
 
 # ╔═╡ a6dd5c16-4ed7-11eb-3974-67e79c8c6b8d
-# if you execute:
+# if you execute bodyweight() and don't specify g, you get body weight as measured on Earth (because g is fixed at a default value of 9.81):
 bodyweight(80)
 
-# ╔═╡ a5b34a80-4ed7-11eb-36be-5bdd564ce47c
-md"And get your weight on another planet"
-
 # ╔═╡ a6dfca2a-4ed7-11eb-3f50-6d4e4b63c5e2
-# and don't specify g, you get body weight as measured on Earth (because g is fixed at a default value of 9.81)
-# alternatively, you can change g
+# alternatively, you can change g and get your weight on another planet:
 bodyweight(80, 3.72)
 
 # ╔═╡ b9a0dcce-4ed7-11eb-0164-31afe37e67d0
@@ -673,7 +680,9 @@ end
 
 # ╔═╡ 9a6eaaba-4ed8-11eb-3589-213a28527443
 md"""
-While loops don't require you to specify a looping sequence (e.g. `i in 1:100`). This can be very useful because sometimes you simply don't know how many iterations you might need.
+While loops don't require you to specify a looping sequence (e.g. `i in 1:100`). This can be very useful because sometimes you simply don't know how many iterations you might need. 
+
+In the above code, you might have spotted the word `global`. Variables can exist in the `local` or `global` scope. If a variable exists inside a loop or function it is `local` and if you want to save it beyond the loop (i.e., in your workspace) you have to make it `global` - more on this later.
 
 ## Plots 
 In R, the plotting of data is either done in base R or via the `ggplot2` package. If you're a base R person, you'll probably feel more comfortable with the `Plots` package. Alternatively, if you prefer `ggplot2`, the `Gadfly` package is the closest thing you'll find in Julia. We'll introduce both in the following sections. 
@@ -699,6 +708,18 @@ Plots.plot(collect(x4),y4,label="bla", title = "Rubbish plot", lw = 3)
 md"""
 The `Plots.plot()` statement tells Julia that you want to use the `plot` function within the `Plots` package. We're using it here as the `Gadfly` package is also active and has it's own `plot` function.
 
+Quick note here, Penelope got the following error when plotting the first plot:
+Error showing value of type Plots.Plot{Plots.GRBackend}: ERROR: could not load library "libGR.so"
+
+If this happens, run these two lines in your REPL:
+
+ENV["GRDIR"]=""
+
+Pkg.build("GR")
+"""
+
+# ╔═╡ 875320be-64bd-11eb-19eb-8540b1ee4cd7
+md"""
 To mutate a plot use `!`:
 """
 
@@ -761,7 +782,7 @@ png(p1,"plot2")
 
 # ╔═╡ 6af780da-4ed9-11eb-2ea1-e5e2e6fed2f4
 md"""
-Once you've created a plot it can be viewed or reopened in VS Code by navigating to the `Julia explorer: Julia workspace` symbol in the activity bar (three circles) and clicking on the plot object. We advise that you always name and assign your plots (e.g. p1, p2, etc). The `Plots` package also has it's own [tutorial](https://docs.juliaplots.org/latest/tutorial/) for plotting in Julia.
+Once you've created a plot it can be viewed or reopened in VS Code by navigating to the `Julia explorer: Julia workspace` symbol in the activity bar (three circles) and clicking on the plot object (e.g., p1). We advise that you always name and assign your plots (e.g. p1, p2, etc). The `Plots` package also has it's own [tutorial](https://docs.juliaplots.org/latest/tutorial/) for plotting in Julia.
 
 ### Gadfly
 You can also plot in Julia using the `Gadfly` package. `Gadfly` can be especially useful when working with dataframes. The documentation for the `Gadfly` package can be found [here](http://gadflyjl.org/stable/index.html).
@@ -796,7 +817,9 @@ Gadfly.plot(
 md"""
 B = blue crab and O = orange crab
 
-Again, we've used the `Gadfly.plot()` function as both the `Plots` and `Gadfly` packages are active. If only one was active, we could just use `plot()`.  
+Again, we've used the `Gadfly.plot()` function as both the `Plots` and `Gadfly` packages are active. If only one was active, we could just use `plot()`. 
+
+Don't be alarmed if your Gadfly plots have a different background colour, it's simply because you've chosen a funky theme for VS Code and you haven't specified a background colour. The plot background can changed by passing a `Theme` object to the `plot` function - see [here](http://gadflyjl.org/v0.4/man/themes.html) for more details.
 
 ## Scoping
 Scoping refers to the accessibility of a variable within your project. The scope of a variable is defined as the region of code where a variable is known and accessible. A variable can be in the `global` or `local` scope. 
@@ -836,7 +859,7 @@ for i in 1:10
 end
 
 # ╔═╡ df1b7c46-4ed9-11eb-1498-b3b3bb77a094
-local_a # returns a 'not defined' error
+local_varb # returns a 'not defined' error
 
 # ╔═╡ df1f5e10-4ed9-11eb-2045-1fdb51fde121
 C2 # returns a vector
@@ -918,6 +941,7 @@ md"""
 # ╠═b66175da-4ed4-11eb-1453-df631402d6ed
 # ╟─bd58f630-4ed4-11eb-0201-6db324add33c
 # ╠═d7d77a8e-4ed4-11eb-2c79-f58ad22e8e5d
+# ╟─6202905e-64b5-11eb-1efc-6945db996844
 # ╠═ddd93238-4ed4-11eb-1ce1-338db5b20cb4
 # ╟─e5e82af6-4ed4-11eb-013e-8b521851fbae
 # ╠═f07a815a-4ed4-11eb-38e2-03d0037bdef5
@@ -951,7 +975,6 @@ md"""
 # ╟─929584a6-4ed5-11eb-1863-5be0ecc9cadc
 # ╠═9a147c82-4ed5-11eb-3232-d38aa3bf64c1
 # ╠═9e0fb8b0-4ed5-11eb-157c-6f6666db78e5
-# ╠═07c1f304-4ed6-11eb-18f7-bf1d4a5d6317
 # ╠═0c22754a-4ed6-11eb-39c8-9de32eb01c17
 # ╠═12f07ca0-4ed6-11eb-1cf1-3150bd2167b5
 # ╠═153a680e-4ed6-11eb-040d-2da830d34767
@@ -993,6 +1016,7 @@ md"""
 # ╠═bfb2f0b4-4ed6-11eb-2220-d7f2df285199
 # ╠═bfc49670-4ed6-11eb-03f7-c92156c63514
 # ╠═bfd5ee96-4ed6-11eb-3638-6b4bed3c63db
+# ╟─df818ea6-64bd-11eb-2ccf-ff6ed64195ef
 # ╟─bdcb817e-4ed6-11eb-2cc2-331edb5aae22
 # ╠═d1d274ca-4ed6-11eb-0a11-6d334548f77a
 # ╠═d867329e-4ed6-11eb-0739-4dada7e2f3dc
@@ -1001,14 +1025,12 @@ md"""
 # ╟─d88efdec-4ed6-11eb-01ce-a50f7f9e6c6e
 # ╟─d78a2264-4ed6-11eb-252a-814789e778d2
 # ╠═768349ea-4ed7-11eb-1b9b-2ff91e39460e
-# ╠═91dc1438-4ed7-11eb-357a-e358200dee3a
 # ╠═91dda1c2-4ed7-11eb-3a53-7b126c8c99e6
 # ╠═91efdebe-4ed7-11eb-1918-433e8e3112f3
 # ╠═92022338-4ed7-11eb-0965-dd858836e038
 # ╟─90e56af2-4ed7-11eb-1836-0ba5da4b3799
 # ╠═9f09e8c4-4ed7-11eb-3df7-b91b7decd4c0
 # ╠═a6dd5c16-4ed7-11eb-3974-67e79c8c6b8d
-# ╠═a5b34a80-4ed7-11eb-36be-5bdd564ce47c
 # ╠═a6dfca2a-4ed7-11eb-3f50-6d4e4b63c5e2
 # ╟─b9a0dcce-4ed7-11eb-0164-31afe37e67d0
 # ╠═c4dc8c00-4ed7-11eb-18d6-7b23fd5cc6e6
@@ -1042,6 +1064,7 @@ md"""
 # ╠═b6aa1ae8-4ed8-11eb-3948-436ffcb2a4b7
 # ╠═b6ade206-4ed8-11eb-2994-d784c0d2e507
 # ╟─b5c3c8a4-4ed8-11eb-35cd-1f0630bbef26
+# ╟─875320be-64bd-11eb-19eb-8540b1ee4cd7
 # ╠═3e959ffc-4ed8-11eb-1c87-272963fe31da
 # ╠═ee7132ae-4ed8-11eb-2b39-cd1dddd0770b
 # ╠═ee76a64e-4ed8-11eb-3827-fffd9aa53158

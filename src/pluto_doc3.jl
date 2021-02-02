@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.20
 
 using Markdown
 using InteractiveUtils
@@ -71,6 +71,11 @@ function LV_model(du,u,p,t)
    du[2] = p.assimeff * IngestC - MortC
 end
 
+# ╔═╡ ccdc0054-6546-11eb-3c69-bb7e8c9f74bf
+md"
+You'll notice that in the above function (`LV_model`), we've specified specific parameters using the `p.name` notation. This is because we've opted to store our parameters in a named tuple called `p`. `p` is created below but it's worth noting that when this notation is used e.g., `p.growthrate`, we are telling Julia that we want to use the value of `growthrate` that is stored as a named part of our tuple `p`. 
+"
+
 # ╔═╡ 0f9cd950-416a-11eb-2d48-6b5f3e4a6f01
 md"
 ### Step 2. Define the problem
@@ -89,7 +94,7 @@ p = (
     )
 
 # ╔═╡ e2c7c84e-4f7f-11eb-1801-55c75a3a47c4
-md"Here, we have chosen to define p as a named tuple (similar to a list in R). A vector or dictionary would also work, however, named tuples are advantageous because they allow us to use explicit names and are unmutable meaning that once it's created you can't change it."
+md"Here, we have chosen to define `p` as a named tuple (similar to a list in R). A vector or dictionary would also work, however, named tuples are advantageous because they allow us to use explicit names and are unmutable meaning that once it's created you can't change it."
 
 # ╔═╡ 852c1816-416a-11eb-3dfb-7bf3c3625ee1
 md"
@@ -111,7 +116,7 @@ tspan = (0.0,100.0) # you have to use a Pair (tuple with 2 values) of floating p
 
 # ╔═╡ 67a6b9f0-416c-11eb-1819-753421406b22
 md"
-We then formally define the problem by passing the function, the parameters, the initial values and the timespan to `ODEProblem()`:
+We then formally define the problem by passing the function (`LV_model`), the parameters (listed in our named tuple `p`), the initial values (`u0`) and the timespan (`tspan`) to `ODEProblem()`:
 "
 
 # ╔═╡ 76195ee0-416c-11eb-03f9-e9d7733872b2
@@ -149,6 +154,8 @@ plot(sol,
 
 # ╔═╡ 99adc35a-4f81-11eb-07f3-7b9b6598c13d
 md"
+One thing to note here, when plotting in Julia you don't need to seperate label names (`label = [prey predator]`) or linestyles (`linestyle = [:dash :dot]`) with a comma as you would in R. This will also be case for most plotting options in Julia. 
+
 You could also plot the data manually using `Plots.jl` or `Gadfly.jl`, manipulate it or store it in your active project. For a recap on plotting, manipulation and visualation head back to 'Julia in VS Code' #2. 
 "
 
@@ -161,6 +168,7 @@ You could also plot the data manually using `Plots.jl` or `Gadfly.jl`, manipulat
 # ╟─10721016-4165-11eb-3724-4f656be470c7
 # ╟─e537957a-4168-11eb-13f0-d969b7397595
 # ╠═19fc1444-4168-11eb-1198-a351b833a5e0
+# ╟─ccdc0054-6546-11eb-3c69-bb7e8c9f74bf
 # ╟─0f9cd950-416a-11eb-2d48-6b5f3e4a6f01
 # ╠═7b807ffc-416a-11eb-1af2-e929f50f7286
 # ╟─e2c7c84e-4f7f-11eb-1801-55c75a3a47c4

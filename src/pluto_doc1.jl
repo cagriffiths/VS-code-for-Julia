@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.20
 
 using Markdown
 using InteractiveUtils
@@ -23,17 +23,13 @@ These will help explain some of the terminology used below.
 They'll also show you how to change the colour theme and icon symbols (by far the most important part of any coding tutorial...)
 """
 
-# ╔═╡ 27fe2e06-4eb5-11eb-0ba3-07964c71171c
+# ╔═╡ 80a5b3e6-64b1-11eb-1306-7502a46ae4bc
 md"""
 # Download and install
 
 1. Julia
 
 Navigate to [this page](https://julialang.org/downloads/) and follow the platform-specific instructions to dowload and install Julia (we recommend installing the current stable release). 
-
-![Installing Julia]
-(./images/Install_Julia.png)
-
 
 2. Visual Studio Code
 
@@ -138,7 +134,7 @@ If you are working on someone else's project (or on your project but from a diff
 ## Package manager
 
 Now that we are all set up, we are going to install a package, check the
-project's status and remove a package. As this will be your first time installing a given package (e.g., Plots), it might take a couple of minutes to run the installation. 
+project's status and remove a package. As this might be your first time installing a  package (e.g., Plots), dont be concerned if it takes a couple of minutes to run.
 
 - type `] add Plots` in the REPL (or `Pkg.add("Plots")` in your script and execute using Ctrl-Enter)
 - you just installed the Plots package (equivalent to Base plots in R) to your project
@@ -212,7 +208,7 @@ Status `~/Desktop/Julia - VS code - how to/Project.toml`
 # ╔═╡ Cell order:
 # ╟─45396dec-4eb4-11eb-3bd5-b71f3a3e1a22
 # ╟─1e32e4fc-4eb5-11eb-1053-f73699c1f8d0
-# ╠═27fe2e06-4eb5-11eb-0ba3-07964c71171c
+# ╟─80a5b3e6-64b1-11eb-1306-7502a46ae4bc
 # ╟─31cd2b80-4eb5-11eb-225e-33802dfc5921
 # ╟─3c7f1fca-4eb5-11eb-0e7b-71824ff2d6fb
 # ╠═4cec8ef6-4eb5-11eb-0433-d317d947169c
