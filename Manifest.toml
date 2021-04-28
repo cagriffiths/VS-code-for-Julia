@@ -336,6 +336,18 @@ git-tree-sha1 = "92d8f9f208637e8d2d28c664051a00569c01493d"
 uuid = "5ae413db-bbd1-5e63-b57d-d24a61df00f5"
 version = "2.1.5+1"
 
+[[EcologicalNetworks]]
+deps = ["Combinatorics", "DataStructures", "DelimitedFiles", "Distributions", "LinearAlgebra", "Random", "Requires", "SparseArrays", "Statistics", "StatsBase"]
+git-tree-sha1 = "23688b8e6c0a395820ad1eed7d283375dff62e42"
+uuid = "f03a62fe-f8ab-5b77-a061-bb599b765229"
+version = "0.4.3"
+
+[[EcologicalNetworksPlots]]
+deps = ["EcologicalNetworks", "Random", "RecipesBase", "SparseArrays", "Statistics", "StatsBase"]
+git-tree-sha1 = "450b9460f4566d1ead34aaad7c769e29641b839a"
+uuid = "9f7a259d-73a7-556d-a7a2-3eb122d3865b"
+version = "0.0.10"
+
 [[ExponentialUtilities]]
 deps = ["LinearAlgebra", "Printf", "Requires", "SparseArrays"]
 git-tree-sha1 = "712cb5af8db62836913970ee035a5fa742986f00"
