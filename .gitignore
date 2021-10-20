@@ -34,7 +34,7 @@ outputs/
 trophicrank.pdf
 VS code tutorial comments.docx
 masters tutorials/
-Doc1_GettingStarted.jmd
+src/Doc1_GettingStarted.jmd
 Doc2_BasicJuliaCommands.jmd
 Doc3_DiffEqs.jmd
 Doc4_BioEnergeticFoodWebs.jmd
