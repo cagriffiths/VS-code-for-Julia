@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.7
+# v0.16.2
 
 using Markdown
 using InteractiveUtils
@@ -63,11 +63,11 @@ md"""
 A good practice to adopt when coding is to always work in a contained project environment as each unique project may require a different setup (e.g. packages, package versions, working directories, data locations, etc.).  
 
 To set up a project in VS Code, start by: 
-- Creating a folder at a location of your choosing (e.g. within your Documents folder). We will name our folder 'JuliaTuto' for the examples that follow but please feel free to replace this name as you see fit.
+- Creating a folder at a location of your choosing (e.g. within your Documents folder). We will name our folder 'Julia - VS code - how to' for the examples that follow but please feel free to replace this name as you see fit.
 
-To open your new project in VS Code (e.g. here JuliaTuto):
+To open your new project in VS Code (e.g. here 'Julia - VS code - how to'):
 - click on the 'Explorer' symbol (top symbol on the activity bar) and click Open Folder
-- navigate to the JuliaTuto folder in your files and click open
+- navigate to the 'Julia - VS code - how to' folder in your files and click open
 - this folder then becomes the location of your working directory (same as when using an RProject in R)
 - after clicking open, the contexts of your directory will appear as a vertical pane on the left hand side of the screen
 
@@ -111,7 +111,7 @@ You don't have to create or modify these two files, they are automatically creat
 To activate a project:
 - activate your project by typing `] activate .` in the REPL or by using `Pkg.activate(".")` in the script
 - activation is done automatically in VS Code, however, it remains an important point as activation ensures that your project is 'active' and can use package operations
-Note: the dot `.` stands for the current working directory. You could also use `pwd` and activate using `Pkg.activate(pwd())` or `Pkg.activate("path/to/folder/JuliaTuto")`. 
+Note: the dot `.` stands for the current working directory. You could also use `pwd` and activate using `Pkg.activate(pwd())` or `Pkg.activate("path/to/folder/Julia - VS code - how to/Project.toml")`. 
 
 Once your project is activated, there are two ways to use the package manager (`Pkg`):
 - directly from the REPL:
@@ -144,9 +144,9 @@ project's status and remove a package. As this might be your first time installi
 
 
 ```julia; eval = false
-(JuliaTuto) pkg> st
-    Status `~/projects/JuliaTuto/Project.toml`
-    [91a5bcdd] Plots v1.6.12
+(Julia - VS code - how to) pkg> st
+    Status `~/Documents/Julia - VS code - how to/Project.toml`
+    [91a5bcdd] Plots v1.22.6
 ```
 
 """
@@ -183,20 +183,22 @@ Pkg.status()
 You should see the following in the REPL (the only difference might be your project name):
 
 ```julia; eval = false
-(JuliaTuto) pkg> st
-Status `~/Desktop/Julia - VS code - how to/Project.toml`
-  [9b49b652] BioEnergeticFoodWebs v1.1.2
-  [336ed68f] CSV v0.7.10
-  [a93c6f00] DataFrames v0.21.8
-  [0c46a032] DifferentialEquations v6.15.0
-  [31c24e10] Distributions v0.23.8
-  [f03a62fe] EcologicalNetworks v0.3.0
-  [c91e804a] Gadfly v1.3.1
-  [033835bb] JLD2 v0.2.4
-  [91a5bcdd] Plots v1.6.12
-  [c3e4b0f8] Pluto v0.12.18
-  [ce6b1742] RDatasets v0.6.10
-  [44d3d7a6] Weave v0.10.6
+(Julia - VS code - how to) pkg> st
+Status `~/Documents/Julia - VS code - how to/Project.toml`
+  [9b49b652] BioEnergeticFoodWebs v1.2.0 `https://github.com/PoisotLab/BioEnergeticFoodWebs.jl.git#dev-2.0.0`
+  [336ed68f] CSV v0.8.5
+  [a93c6f00] DataFrames v1.2.2
+  [0c46a032] DifferentialEquations v6.18.0
+  [31c24e10] Distributions v0.24.18
+  [f03a62fe] EcologicalNetworks v0.5.0
+  [c91e804a] Gadfly v1.3.4
+  [033835bb] JLD2 v0.3.3
+  [91a5bcdd] Plots v1.22.6
+  [c3e4b0f8] Pluto v0.16.2
+  [ce6b1742] RDatasets v0.7.5
+  [2913bbd2] StatsBase v0.33.12
+  [f3b207a7] StatsPlots v0.14.28
+  [44d3d7a6] Weave v0.10.10
   [8bb1440f] DelimitedFiles
   [9a3f8284] Random
   [10745b16] Statistics
