@@ -1,5 +1,5 @@
 # VS-code-for-Julia
-This repository provides a tutorial for using Julia in the Visual Studio Code by Chris Griffiths, Eva Delmas and Andrew Beckerman. 
+This repository provides a tutorial for using Julia in Visual Studio Code by Chris Griffiths, Eva Delmas and Andrew Beckerman. 
 
 The tutorial takes the form of 4 documents (available as .html and .pdf files - see `doc`) with the following aims:
   1. Getting started - instructions on how to install and run Julia in VS Code, includes details on Julia's package manager
