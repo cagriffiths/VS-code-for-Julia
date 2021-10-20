@@ -4,7 +4,7 @@ testing_3.0_my_data.txt
 out_objects/
 plot.png
 plot2.png
-.DS_store
+.DS_Store
 jl_*/
 *.aux
 *.log
@@ -27,3 +27,10 @@ Doc4_BioEnergeticFoodWebs.log
 Doc4_BioEnergeticFoodWebs.out
 Doc4_BioEnergeticFoodWebs.tex
 testing_Atlantic cod_rates.txt
+plot_test.png
+returntime.png
+masters tutorials/plot_harvesting.png
+outputs/
+trophicrank.pdf
+VS code tutorial comments.docx
+masters tutorials/

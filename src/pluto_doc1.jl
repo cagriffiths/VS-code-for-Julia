@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.20
+# v0.14.7
 
 using Markdown
 using InteractiveUtils
@@ -29,12 +29,12 @@ md"""
 
 1. Julia
 
-Navigate to [this page](https://julialang.org/downloads/) and follow the platform-specific instructions to dowload and install Julia (we recommend installing the current stable release). 
+Navigate to [this page](https://julialang.org/downloads/) and follow the platform-specific instructions to dowload and install Julia (we recommend installing the current stable release). During the installation process, you may be prompted to add Julia to the PATH, this box should be ticked. 
 
 2. Visual Studio Code
 
 Navigate to [this page](https://visualstudio.microsoft.com/) to dowload and install
-VS Code. 
+Visual Studio Code (not Visual Studio). 
 
 """
 
@@ -47,8 +47,8 @@ Pair Colorizer.
 
 To install Julia in VS Code do the following (you only need to do this once):
 - open VS Code (you'll see the welcome page)
-- navigate to the marketplace (5th symbol down in the activity bar - vertical panel on the lefthand side of the screen)
-- search for Julia
+- navigate to the 'Marketplace' (5th symbol down in the activity bar - vertical panel on the lefthand side of the screen)
+- search for Julia in the 'Search Extensions in Marketplace' search bar
 - install [Julia](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia), this extension provides support for the Julia programming language
 - while you're there, also search for and install [Julia Formatter](https://marketplace.visualstudio.com/items?itemName=singularitti.vscode-julia-formatter), this extension will help you write clean code that is easier to read
 
@@ -66,16 +66,16 @@ To set up a project in VS Code, start by:
 - Creating a folder at a location of your choosing (e.g. within your Documents folder). We will name our folder 'JuliaTuto' for the examples that follow but please feel free to replace this name as you see fit.
 
 To open your new project in VS Code (e.g. here JuliaTuto):
-- click on the explorer symbol (top symbol on the activity bar) and click Open Folder
+- click on the 'Explorer' symbol (top symbol on the activity bar) and click Open Folder
 - navigate to the JuliaTuto folder in your files and click open
 - this folder then becomes the location of your working directory (same as when using an RProject in R)
 - after clicking open, the contexts of your directory will appear as a vertical pane on the left hand side of the screen
 
 The next step is to create a new file (a script) in your directory:
-- do this by using cmd-N, File>New File or by left clicking>New File within the directory pane
+- do this by using cmd-N (ctrl-N on windows), File>New File or by left clicking>New File within the directory pane
 - name your script as your see fit but please rememeber to include the .jl file extension (e.g. JuliaTuto.jl)
 - the .jl file extension tells VS Code you want to use the Julia programming language 
-- to save your script at any time use cmd-S or File>Save  
+- to save your script at any time use cmd-S (ctrl-S on windows) or File>Save  
 
 Alternatively, you can also open a project in VS Code by right-clicking on your folder (in Finder, Windows file explorer or Linux nautilus) and selecting Open with -> Other -> VS Code. Or if you are a command-line addict, you can `cd` into the directory and type `code .` to open VS Code (this needs [to be activated for Mac](https://code.visualstudio.com/docs/setup/mac)).
 
@@ -96,7 +96,7 @@ For an introduction to the Julia package manager, see [the documentation](https:
 The "Background and design" section provides useful details if you want to 
 understand more about its originality compared to other languages and how it works. 
 
-## Projet and Manifest files 
+## Project and Manifest files 
 
 We mentioned above that it is good practice to work within an environment specific to each project. The Julia package manager (`Pkg`) 
 allows you to do that easily: *Unlike traditional package managers, which install and manage a single global set of packages, 
@@ -108,8 +108,12 @@ The project environment is stored in two files:
 - `Manifest.toml` - does the same thing but for all the package dependencies (other packages that are essential, or form functional parts, of the package you want to use) 
 You don't have to create or modify these two files, they are automatically created once you have activated your project and installed your first package. 
 
-1. Using the package manager
-There are two ways to use the package manager (`Pkg`)
+To activate a project:
+- activate your project by typing `] activate .` in the REPL or by using `Pkg.activate(".")` in the script
+- activation is done automatically in VS Code, however, it remains an important point as activation ensures that your project is 'active' and can use package operations
+Note: the dot `.` stands for the current working directory. You could also use `pwd` and activate using `Pkg.activate(pwd())` or `Pkg.activate("path/to/folder/JuliaTuto")`. 
+
+Once your project is activated, there are two ways to use the package manager (`Pkg`):
 - directly from the REPL:
     - navigate to the REPL
     - type `]`
@@ -119,17 +123,13 @@ There are two ways to use the package manager (`Pkg`)
     - type `import Pkg` and execute using Ctrl-Enter
     - you can then add, remove and update packages from your script using the build in Pkg functions e.g. `Pkg.add()`, `Pkg.remove()` or `Pkg.update()`
 
-There are two ways to double check that you are actually working within your project: 
+There are also two ways to double check that you are actually working within your project: 
 - check/click the 'Julia env:...' on the bottom of your screen (blue bar), it should match your project name
 - enter the package manager by typing `]` in the Julia REPL, you should see `(your-project-name) pkg>` instead of `julia>`. Again, exit the package manager using backspace.
 
-2. Activating a project
-- activate your project by typing `] activate .` in the REPL or by using `Pkg.activate(".")` in the script
-- activation is done automatically in VS Code, however, it remains an important point as activation ensures that your project is 'active' and can use package operations
-Note: the dot `.` stands for the current working directory. You could also use `pwd` and activate using `Pkg.activate(pwd())` or `Pkg.activate("path/to/folder/JuliaTuto")`. 
+Working on someone else's project:
 
-3. Working on someone else's project 
-If you are working on someone else's project (or on your project but from a different computer), you will want to use the same packages and package versions. To do this, first activate the directory (see point 2) and then install all the packages and dependencies stored in the `Project.toml` (and `Manifest.toml`) by typing either `] instantiate` in the REPL or `Pkg.instantiate()` in the script. This is incredibly useful as it means you can ensure that you're working from an identical project environment with a single command.
+If you are working on someone else's project (or on your project but from a different computer), you will want to use the same packages and package versions. To do this, first activate the directory (see above) and then install all the packages and dependencies stored in the `Project.toml` (and `Manifest.toml`) by typing either `] instantiate` in the REPL or `Pkg.instantiate()` in the script. This is incredibly useful as it means you can ensure that you're working from an identical project environment with a single command.
 
 ## Package manager
 
@@ -164,8 +164,7 @@ md"""
 
 Remember, when using your package manager from the REPL via `]`, you exit it using the backspace. 
 
-We have tested these tutorials with a specific list of packages. Consequently, we recommend you download the `Project.toml` and `Manifest.toml` files from [this link](https://github.com/cagriffiths/VS-code-for-Julia/)
-and replace your `Manifest.toml` and `Project.toml` with these files. Then activate (if you've not done so already) and instantiate (pop back a few steps for a recap if needed). Here's a script to this from VS Code using Julia: 
+We have tested these tutorials with a specific list of packages. Consequently, we recommend you download the `Project.toml` and `Manifest.toml` files from [this link](https://github.com/cagriffiths/VS-code-for-Julia/) (you'll find code to automatically download these files within Julia below). Once downloaded these files will replace your current `Manifest.toml` and `Project.toml` files. You'll then need to activate (if you've not done so already) and instantiate (pop back a few steps for a recap if needed). Here's the code:
 
 ```julia; eval = false
 #import the functions from the Pkg manager
