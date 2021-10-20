@@ -8,7 +8,7 @@ using InteractiveUtils
 md"
 # Getting started 
 
-*by Chris Griffiths, Eva Delmas and Andrew Beckerman, Dec. 2020.*
+*by Chris Griffiths, Eva Delmas and Andrew Beckerman, Oct. 2021.*
 "
 
 # ╔═╡ 1e32e4fc-4eb5-11eb-1053-f73699c1f8d0
