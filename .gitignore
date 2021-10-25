@@ -37,3 +37,4 @@ masters tutorials/
 past_src/
 myfishdata.csv
 src/5_functionalresponse.jl
+. backup 1.jl
