@@ -1394,9 +1394,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[SparseDiffTools]]
 deps = ["Adapt", "ArrayInterface", "Compat", "DataStructures", "FiniteDiff", "ForwardDiff", "LightGraphs", "LinearAlgebra", "Requires", "SparseArrays", "StaticArrays", "VertexSafeGraphs"]
-git-tree-sha1 = "36a4d27a02af48a1eafd2baff58b32deeeb68926"
+git-tree-sha1 = "60980d5b267a3a4d43e907d71cb0894bab09695b"
 uuid = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
-version = "1.16.5"
+version = "1.17.0"
 
 [[SpecialFunctions]]
 deps = ["ChainRulesCore", "IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
@@ -1756,14 +1756,14 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─c0ebcd72-4185-11eb-1f7a-495100d90da7
 # ╟─02d42d26-4ea9-11eb-0037-29e78216697e
-# ╠═4d456ac8-4ea9-11eb-24be-3181d81cea4e
-# ╠═6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
+# ╟─4d456ac8-4ea9-11eb-24be-3181d81cea4e
+# ╟─6ff71d64-4ea9-11eb-3e32-1fa7bfeef163
 # ╠═58837362-4ea9-11eb-203b-c1ddc9983e1c
 # ╟─38e8575e-4eaa-11eb-2843-cbefb55fb1f9
 # ╠═44e9c512-4eaa-11eb-2a1a-53b024da1311
 # ╟─e20123b4-4ea9-11eb-3e7c-570c8c04e3ec
 # ╟─932cc4ca-654a-11eb-1601-0f772477529f
-# ╠═daa5d4c8-50fe-11eb-3ced-29c48292f7b2
+# ╟─daa5d4c8-50fe-11eb-3ced-29c48292f7b2
 # ╠═e07fb471-43e2-4a45-b93b-5ebd079b5e69
 # ╠═17bbecf7-d8ae-4bda-9cf2-66507ac26ddc
 # ╠═9d4dc490-43f2-4d1f-b7eb-6b33c0a14e76
