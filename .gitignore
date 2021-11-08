@@ -1,5 +1,12 @@
 scratches/
 out_objects/
+my_data.csv
+My_data.csv
+testing_3.0_my_data.txt
+out_objects/
+plot.png
+plot2.png
+.DS_Store
 jl_*/
 extinctions/
 harvesting/
@@ -8,10 +15,32 @@ harvesting/
 *.log
 *.tex
 .localized
-*.aux
-*.log
-*.out
-*.tex
-
-my_data.csv
-.DS_Store
+Doc1_GettingStarted.aux
+Doc1_GettingStarted.log
+Doc1_GettingStarted.out
+Doc1_GettingStarted.tex
+Doc2_BasicJuliaCommands.aux
+Doc2_BasicJuliaCommands.log
+Doc2_BasicJuliaCommands.out
+Doc2_BasicJuliaCommands.tex
+Doc3_DiffEqs.aux
+Doc3_DiffEqs.log
+Doc3_DiffEqs.out
+Doc3_DiffEqs.tex
+Doc4_BioEnergeticFoodWebs.aux
+Doc4_BioEnergeticFoodWebs.log
+Doc4_BioEnergeticFoodWebs.out
+Doc4_BioEnergeticFoodWebs.tex
+testing_Atlantic cod_rates.txt
+plot_test.png
+returntime.png
+masters tutorials/plot_harvesting.png
+outputs/
+trophicrank.pdf
+VS code tutorial comments.docx
+masters tutorials/
+past_src/
+myfishdata.csv
+src/5_functionalresponse.jl
+. backup 1.jl
+src/temperature_examples_pluto.jl
