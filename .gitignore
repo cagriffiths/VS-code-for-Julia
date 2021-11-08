@@ -1,6 +1,4 @@
-extinctions/*
-harvesting/*
-scratches/*
+scratches/
 out_objects/
 jl_*/
 
@@ -14,4 +12,4 @@ jl_*/
 *.tex
 
 my_data.csv
-.DS_store
+.DS_Store
