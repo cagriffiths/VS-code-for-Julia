@@ -1,6 +1,8 @@
 scratches/
 out_objects/
 jl_*/
+extinctions/
+harvesting/
 
 *.aux
 *.log
