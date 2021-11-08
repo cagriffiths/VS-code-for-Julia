@@ -14,3 +14,4 @@ jl_*/
 *.tex
 
 my_data.csv
+.DS_store
