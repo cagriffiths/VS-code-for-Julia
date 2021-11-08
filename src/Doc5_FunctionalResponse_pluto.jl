@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.3
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
@@ -243,10 +243,10 @@ begin
 	    A = Int.(Ad)
 	    # calculate connectance
 	    co = sum(A)/(size(A,1)^2)
-	    # ensure that connectance = 0.15
+	    # ensure that connectance = 0.2
 	    if co == 0.2
 	        push!(networks, A)
-	        # save network is co = 0.15
+	        # save network is co = 0.2
 	    end
 	    global l = length(networks)
 	end
