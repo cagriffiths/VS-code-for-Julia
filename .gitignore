@@ -1,5 +1,7 @@
 scratches/
 out_objects/
+extinctions/
+harvesting/
 my_data.csv
 My_data.csv
 testing_3.0_my_data.txt
@@ -8,9 +10,6 @@ plot.png
 plot2.png
 .DS_Store
 jl_*/
-extinctions/
-harvesting/
-
 *.aux
 *.log
 *.tex
