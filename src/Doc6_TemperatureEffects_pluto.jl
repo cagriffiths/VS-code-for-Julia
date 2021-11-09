@@ -342,8 +342,61 @@ md"""
 
 # ╔═╡ 80e220f9-5737-4c52-9230-96c4872cc7c8
 md"
-To demonstrate how the scaling of biological rates with mass and temperature can be utilised in the BEFW model, we are going explore the joint effects of Z and T on population and community dynamics. We will first propose a range temperatures and Z values, initiate some networks, and then loop our simulations over them. For illistrative purposes, we will record both total biomass and species persistence as outputs:
+To demonstrate how the scaling of biological rates with mass and temperature can be utilised in the BEFW model, we are going explore the joint effects of Z and T on population and community dynamics. We will first propose a range temperatures and Z values, initiate some networks, and then loop our simulations over them. For simplicity, we only use one food web here (`A` defined above). For illustrative purposes, we will record both total biomass and species persistence as outputs:
 "
+
+# ╔═╡ f38dd22d-9d2e-44d3-b7c2-1b5d3b4d2248
+T_range = [0:1:40;] .+ 273.15 # temperature ranging from 0 to 40C
+
+# ╔═╡ ea75bd06-a85f-4235-9a1e-152b2225bb9f
+Z_range = 10.0 .^ [1:1:5;] # consumer-resource mass ratio ranging from 10 to 100000
+
+# ╔═╡ 7249092e-45de-436d-94a6-4faae8e975df
+year = Int(60*60*24*364.25) # 1 year in seconds
+
+# ╔═╡ 5536031c-4065-4240-9e9a-fcc7a889f0b3
+df = DataFrame(T = [], Z = [], biomass = [], persistence = []) # initialize outputs data frame
+
+# ╔═╡ 66ada38e-a029-4e2f-ad1d-9d95a128903e
+for z in Z_range 
+	for t in T_range
+		println("T = $t and log(z) = $(log10(z))")
+		p_tmp = model_parameters(A, Z = z, T = t, h = 2.0, functional_response = :classical)
+		ScaleRates!(p_tmp, 10.0) 
+		s = simulate(p_tmp, rand(20), stop = year*3000, interval_tkeep = year)
+		tmp = (T = t, Z = z, biomass = total_biomass(s, last = 500), persistence = species_persistence(s, last = 500))
+		push!(df, tmp)
+	end
+end
+
+# ╔═╡ f9aa0c53-cb30-4432-84be-5a6ff7a59b12
+md"""
+In order to visualize the results as a heatmap (or a contour plot), we need to reshape them from a data frame to a 2D array:
+"""
+
+# ╔═╡ ccdf70b2-e541-4179-8c6b-26614348f7c6
+TZ_array_biomass = fill(NaN, length(Z_range), length(T_range)) #preallocate a 2d array for biomass values
+
+# ╔═╡ 48027a52-ce6b-443b-9e14-c9f0e94410f3
+TZ_array_persistence = fill(NaN, length(Z_range), length(T_range)) #preallocate a 2d array for persistence values
+
+# ╔═╡ 1e90b39b-361a-462e-9ec8-74d012f82abc
+for (i,z) in enumerate(Z_range) 
+	for (j,t) in enumerate(T_range)
+		tmp = df[(df.Z .== z) .& (df.T .== t),:]
+		TZ_array_biomass[i,j] = tmp.biomass[1]
+		TZ_array_persistence[i,j] = tmp.persistence[1]
+	end
+end
+
+# ╔═╡ 8c6b2062-67ef-4c4e-811d-01f8752bc5e3
+p1 = heatmap(string.(T_range .- 273.15), string.(log10.(Z_range)), log10.(TZ_array_biomass), title  = "(log) Total biomass - Heatmap", xlabel = "Temperature (C)", ylabel = "(log) Z") 
+
+# ╔═╡ 69cd4f02-d2c3-400c-86e2-404176b4c69e
+p1b = contour(T_range .- 273.15, log10.(Z_range), log10.(TZ_array_biomass), fill = true, title  = "(log) Total biomass - Contour", xlabel = "Temperature (C)", ylabel = "(log) Z)")
+
+# ╔═╡ 2f627073-adf2-4a57-a1da-1af1602ab3a8
+p2 = heatmap(string.(T_range .- 273.15), string.(log10.(Z_range)), TZ_array_persistence, title  = "Persistence", xlabel = "Temperature (C)", ylabel = "(log) Z")
 
 # ╔═╡ Cell order:
 # ╟─67f58315-b8ec-4ddd-b841-32335d7595cd
@@ -399,4 +452,16 @@ To demonstrate how the scaling of biological rates with mass and temperature can
 # ╟─bbf4d20b-fb31-4658-a08c-2bcd34abdceb
 # ╠═ab74a390-275d-4597-a2af-bb28233868a9
 # ╟─dabca806-888d-4a8c-8b79-6feae3031aee
-# ╠═80e220f9-5737-4c52-9230-96c4872cc7c8
+# ╟─80e220f9-5737-4c52-9230-96c4872cc7c8
+# ╠═f38dd22d-9d2e-44d3-b7c2-1b5d3b4d2248
+# ╠═ea75bd06-a85f-4235-9a1e-152b2225bb9f
+# ╠═7249092e-45de-436d-94a6-4faae8e975df
+# ╠═5536031c-4065-4240-9e9a-fcc7a889f0b3
+# ╠═66ada38e-a029-4e2f-ad1d-9d95a128903e
+# ╟─f9aa0c53-cb30-4432-84be-5a6ff7a59b12
+# ╠═ccdf70b2-e541-4179-8c6b-26614348f7c6
+# ╠═48027a52-ce6b-443b-9e14-c9f0e94410f3
+# ╠═1e90b39b-361a-462e-9ec8-74d012f82abc
+# ╠═8c6b2062-67ef-4c4e-811d-01f8752bc5e3
+# ╠═69cd4f02-d2c3-400c-86e2-404176b4c69e
+# ╠═2f627073-adf2-4a57-a1da-1af1602ab3a8
