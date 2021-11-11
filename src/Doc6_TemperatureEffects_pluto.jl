@@ -15,12 +15,7 @@ using BioEnergeticFoodWebs, EcologicalNetworks, CSV, Random, Plots, DataFrames, 
 
 # ╔═╡ 67f58315-b8ec-4ddd-b841-32335d7595cd
 md"
-First off we import our package manager `Pkg` and activate:
-"
-
-# ╔═╡ bd0fd480-f3e0-49e3-9a65-ad250198b05d
-md"
-This step is not essential but is good practice. Here, we've used the `../` notation to ensure that we are working in correct directory (`Julia - VS code - how to`) and not a subfolder of that directory. 
+Import package manager `Pkg` and activate:
 "
 
 # ╔═╡ 0d6531d4-3578-11ec-3262-9b9f32d140c6
@@ -30,10 +25,10 @@ md"# Temperature Effects
 
 # ╔═╡ db358daf-087d-4f27-ba4c-f782fef1a595
 md"
-Global temperature is expected to increase by 1-4$^{\circ}$C in the next century, a change that could have drastic impacts on ecological systems and the services they provide ([IPCC 2021](https://www.ipcc.ch/report/ar6/wg1/)). Temperature enters ecological systems at the level of the individual, driving biological rates of metabolism, growth and consumption ([Simmons et al. 2021](https://www.nature.com/articles/s41559-021-01547-4)). Despite this, the effects of increasing temperature are often expressed at a range of ecological scales through reductions in individual fitness, changes in population-level traits (e.g. body sized distributions), species extinctions and the loss of ecological complexity (e.g. [Dell et al. 2011](https://doi.org/10.1073/pnas.1015178108); [Pawar et al. 2016](https://www.journals.uchicago.edu/doi/10.1086/684590); [Fussmann et al. 2016](https://www.nature.com/articles/nclimate2134); [Tabi et al. 2019](https://doi.org/10.1111/ele.13262)). 
+Global temperature is expected to increase by 1-4$^{\circ}$C in the next century, a change that could have drastic impacts on ecological systems and the services they provide ([IPCC 2021](https://www.ipcc.ch/report/ar6/wg1/)). Temperature enters ecological systems at the level of the individual, driving biological rates of metabolism, growth and consumption ([Simmons et al. 2021](https://www.nature.com/articles/s41559-021-01547-4)). Despite this, the effects of increasing temperature are often felt at a range of ecological scales through reductions in individual fitness, changes in population-level traits (e.g. body size distributions), species-level extinctions, and the loss of ecological complexity (e.g. [Dell et al. 2011](https://doi.org/10.1073/pnas.1015178108); [Pawar et al. 2016](https://www.journals.uchicago.edu/doi/10.1086/684590); [Fussmann et al. 2016](https://www.nature.com/articles/nclimate2134); [Tabi et al. 2019](https://doi.org/10.1111/ele.13262)). 
 
 In previous versions of the BEFW model, biological rates are modelled as a function of mass, and are therefore temperature independent, limiting the utility of the model to investigate temperature effects ([Delmas et al. 2016](https://doi.org/10.1111/2041-210X.12713)). In this tutorial, we will explain how this limitation is overcome, and how, via Boltzmann Arrhenius terms and the Metabolic Theory of Ecology ([Gillooly et al. 2001](DOI: 10.1126/science.1061967
-); [Brown et al. 2004](https://doi.org/10.1890/03-9000); [Savage et al. 2004](https://www.journals.uchicago.edu/doi/10.1086/381872)), biological rates in the BEFW model can be altered to account for temperature effects. As in previous tutorials, we will first explain the theory (and the maths), then provide some worked examples that are explicity designed to demonstrate how the BEFW model can be used to investigate the effects of temperature on population and community dynamics.
+); [Brown et al. 2004](https://doi.org/10.1890/03-9000); [Savage et al. 2004](https://www.journals.uchicago.edu/doi/10.1086/381872)), biological rates in the BEFW model can be altered to account for temperature effects. As in previous tutorials, we will first explain the theory (including maths and plots), then provide a worked example that is explicity designed to demonstrate how the BEFW model can be used to investigate the effects of temperature on population and community dynamics.
 "
 
 # ╔═╡ 7fa93dec-0317-48c1-9071-1e51f6aadd32
@@ -56,7 +51,7 @@ Again, we recommend quickly checking that you are using the current developmenta
 
 `[9b49b652] BioEnergeticFoodWebs v1.2.0 https://github.com/PoisotLab/BioEnergeticFoodWebs.jl.git#dev-2.0.0` 
 
-If you don't see the above, use 'Pkg.rm('BioEnergeticFoodWebs')' and 'Pkg.add('BioEnergeticFoodWebs#dev-2.0.0')' to remove and reinstall the correct version of the package. A future you will thank you :)! 
+If you don't see the above, use `Pkg.rm('BioEnergeticFoodWebs')` and `Pkg.add('BioEnergeticFoodWebs#dev-2.0.0')` to remove and reinstall the correct version of the package. A future you will thank you :)! 
 "
 
 # ╔═╡ 7e80e739-c27e-4e67-9f0e-777e4fc8dcb4
@@ -68,9 +63,9 @@ The BEFW model, and many other ecological models, lean heavily on the assumption
 
 $q_i(T) = q_0 * M_i^{\beta} * exp(E-\frac{T_0 - T}{kT_0T})$
 
-This equation can be spilt into two parts: (1) an allometric relation between the mass $M$ of species $i$ and a given rate $q$ and (2) an added term that describes how this relation is influenced by changes in temperature $T$. Here, $q_0$ is the intercept of the allometric relationship and $\beta$ is the exponent. Both parameters are often based on empirical observations (e.g. [Ehnes et al. 2011]( https://doi.org/10.1111/j.1461-0248.2011.01660.x)) with $\beta$ describing the effect of mass on $q$ independent of temperature. The parameters for the Boltzmann term include $k$ the Boltzmann's constant, $E$ the mean activation energy of $q$ and $T_0$ which is the reference temperature (20$^{\circ}$C). All parameter values are listed in Table 1: 
+This equation can be spilt into two parts: (1) an allometric relation between the mass $M$ of species $i$ and a given rate $q$ and (2) an added term (the Boltzmann term) that describes how this relation is influenced by changes in temperature $T$. Here, $q_0$ is the intercept of the allometric relationship and $\beta$ is the exponent. Both parameters are often based on empirical observations (e.g. [Ehnes et al. 2011]( https://doi.org/10.1111/j.1461-0248.2011.01660.x)) with $\beta$ describing the effect of $M$ on $q$ independent of $T$. The parameters for the Boltzmann term include $k$ the Boltzmann's constant, $E$ the mean activation energy of $q$ and $T_0$ which is the reference temperature (20$^{\circ}$C = 293K). All parameter values are listed in Table 1: 
 
-**Table 1**. Boltzmann Arrhenius parameters (see also [Binzer et al. 2012](https://doi.org/10.1098/rstb.2012.0230) & [Binzer et al. 2016](https://doi.org/10.1111/gcb.13086)). 
+**Table 1**. Boltzmann Arrhenius parameters (see also [Binzer et al. 2012](https://doi.org/10.1098/rstb.2012.0230) & [Binzer et al. 2016](https://doi.org/10.1111/gcb.13086)).  
 
  .    | $r_i$  | $K_i$ | $x_i$  | $ar_{ij}$ | $ht_{ij}$
 :---- | -----: | ----: | -----: | -------: | --------:
@@ -79,9 +74,9 @@ This equation can be spilt into two parts: (1) an allometric relation between th
   $\beta_j$ |        |       |        | -0.8     | 0.47      
   $E$ | -0.84  | 0.71  | -0.69  | -0.38    | 0.26  
 
-Here, $K_i$ signifies the carrying capacity of the system, which can also be described as a function of both mass and temperature. See the next tutorial *Enrichment in the BEFW* for more details. 
+Here, $r$ is growth rate, $x$ is metabolic rate, and $ar$ and $ht$ are attack rates and handling times, respectively. $K$ signifies the carrying capacity of the system, which can also be described as a function of $M$ and $T$. See the next tutorial *Enrichment in the BEFW* for more details. 
 
-When using the Boltzmann-Arrhenius equations to estimate biological rates, we usually use the classical version of the functional response (`:classical`, see tutorial *Functional response*). This is because it is often easier to find empiricaly derived values for ar_{ij} and ht_{ij} than it is to find values for $y$ (maximum consumption) and $B0$ (half saturation densities). It is important to remember that both attack rates and handling times describe an interaction between a consumer (j) and a resource (i), so the Boltzmann-Arrhenius equation becomes:
+When using the Boltzmann-Arrhenius equations to estimate biological rates, we usually use the classical version of the functional response (`:classical`, see tutorial *Functional response*). This is because it is often easier to find empiricaly derived values for $ar_{ij}$ and $ht_{ij}$ than it is to find values for $y$ (consumer-specific maximum consumption rates) and $B0$ (half saturation densities). It is important to remember that both attack rates and handling times describe an interaction between a consumer ($j$) and a resource ($i$), so the Boltzmann-Arrhenius equation for these two rates becomes:
 
 $q_ji(T) = q_0 * M_i^{\beta_i} * M_j^{\beta_j} * exp(E-\frac{T_0 - T}{kT_0T})$
 
@@ -91,7 +86,7 @@ where $M_i$ and $M_j$ are the masses of the resource species and the consumer sp
 # ╔═╡ 5ec9d6e1-18e0-466c-ae41-d461c8e19bb3
 md"## Temperature effects in the BEFW
 
-In BEFW model, four biological rates can be modelled using Boltzmann Arrhenius equations. To illistrate the joint effects of mass and temperature on these rates, we first generate a range of temperatures in Kelvin (1$^{\circ}$C = 273K):
+In BEFW model, four biological rates ($x$, $r$, $ar$ and $ht$) can be modelled using Boltzmann Arrhenius equations. To illistrate the joint effects of mass and temperature on these rates, we first generate a range of temperatures in Kelvin (1$^{\circ}$C = 273K):
 "
 
 # ╔═╡ b0eebaf5-c0ef-4a38-a2a0-36fb0370a648
@@ -99,7 +94,7 @@ T = [0:1:40;] .+ 273.15 # units = Kelvin
 
 # ╔═╡ 24f272b1-8184-4f71-b6aa-da40879af132
 md"
-and a range of masses:
+a range of masses:
 "
 
 # ╔═╡ b1dce82b-d7ec-411e-9a20-b6490d5366cb
@@ -107,7 +102,7 @@ M = [10, 10000, 20000] # units = grams
 
 # ╔═╡ da5dc205-d6ef-400c-b4fc-3dedf19ac821
 md"
-and implement on a rate by rate basis. 
+and implement/plot on a rate by rate basis. 
 "
 
 # ╔═╡ ad288381-b0bb-4759-a4e1-151b8d737f6b
@@ -135,7 +130,7 @@ for (i,t) in enumerate(T)
 end
 
 # ╔═╡ a6f116cf-9cc1-45d1-9df0-7d80c0338df5
-plot(T .- 273.15, log10.(x), markershape = [:rect :circle :utriangle], ms = 3, mc = :black, labels = ["1g" "10kg" "20kg"], lc = :grey, legend = :topleft, xlabel = "Temperature (C)", ylabel = "(log) Metabolic rate in [s-1]") # plot
+plot(T .- 273.15, log10.(x), markershape = [:rect :circle :utriangle], ms = 3, mc = :black, labels = ["1g" "10kg" "20kg"], lc = :grey, legend = :topleft, xlabel = "Temperature (C)", ylabel = "log10(x) in [s-1]") # plot
 
 # ╔═╡ 11de05dc-a9a3-4bb6-9fe6-f1ac41bf9126
 md"##### (2) Growth rate ($r$)"
@@ -266,7 +261,7 @@ plot(T .- 273.15, log10.(ht), markershape = [:rect :circle :utriangle], ms = 3, 
 
 # ╔═╡ 2225f354-465d-4310-a2f8-57e2f5c30995
 md"## ScaleRates!()
-Each of the above functions (e.g. `ScaleHandling()`) provide the code neccessary to scale biological rates by mass and temperature. Each of these functions produce a vector or matrix which can be supplied to a `model_parameters` object using the following notations:
+Each of the above functions (e.g. `ScaleHandling()`) provide the code neccessary to scale biological rates by mass and temperature. Each of these functions produce a vector or matrix which can be supplied directly to a `model_parameters` object using the following code:
 "
 
 # ╔═╡ d6df00e9-8db9-4bd9-acc3-61b34bf0f5d5
@@ -284,28 +279,28 @@ end
 
 # ╔═╡ 40a22973-a6f2-470d-a552-9c508a8f5311
 begin
-	include("common_utils.jl") # loads the content of common_utils.jl script into active project
+	include("common_utils.jl") # loads the content of the common_utils.jl script 
 	p_new = model_parameters(A, Z = Z, T = T20, functional_response = :classical)
 	ScaleRates!(p_new, 10.0) # k0 = 10.0
 end
 
 # ╔═╡ c1dc3810-6904-445f-863e-3f820129a402
 md"
-`p` will now contain updated values for the four biological rates scaled to a temperature of 20$^{\circ}$C. 
+`p` will now contain updated values for the four biological rates each of which have been scaled to a temperature of 20$^{\circ}$C (e.g. the value of $T20$). 
 
-To make this process easier, we've parcelled up the above functions into a larger function called `ScaleRates!()`. `ScaleRates!` takes the `p` object as an input and requires a value for the carrying capacity $k0$ to be specified (see next tutorial for futher details): 
+To make this process easier, we've parcelled up the above functions into a larger function called `ScaleRates!()`. `ScaleRates!` takes the `p` object as an input and requires a value for the carrying capacity $k0$ to be specified (details can be found in the next tutorial *Enrichment in the BEFW*): 
 "
 
 # ╔═╡ aeafdb2e-4a65-46fd-8e41-69d1c4723cf3
 md"
-`ScaleRates!` acts by directly transforming the biological rates within `p` based on `p[:bodymass]` and `p[:T]`. You'll notice the addition of a `!` at the end of the function name, this is a Julia thing and means that the function transforms the input object instead of creating a new object. This function and several others have been compiled into a utility script called `common_utils.jl` which is available via the [github repo](https://github.com/cagriffiths/VS-code-for-Julia). The idea is that the lab will all work from, update, and share this utility script and therefore work with the same toolbox. 
+`ScaleRates!` acts by directly transforming the biological rates within `p` based on `p[:bodymass]` and `p[:T]`. You'll notice the addition of a `!` at the end of the function name, this is a Julia thing and means that the function transforms the input object instead of creating a new object. This function and several others have been compiled into a utility script called `common_utils.jl` which is available via the [github repo](https://github.com/cagriffiths/VS-code-for-Julia). The idea is that the lab will all work from, update, and share the `common_utils.jl` script and therefore work with the same toolbox. 
 "
 
 # ╔═╡ 6cb0ded3-ae15-4968-8f82-09f73a1e5423
 md"## Timesteps/Units
 In previous versions of the BEFW, the timestep of the model is normalised to the growth rate of smallest producer. This means that the `start` and `stop` arguments in the `simulate()` function are somewhat arbitary and the critical aspect is to ensure that model runs for sufficent timesteps (e.g. `stop = 2000`) to achieve steady-state dynamics (i.e. an equilibrium). 
 
-Above, we have demonstrated that biological rates can be scaled by mass and temperature based on empirical derived parameters. The units of these rates are detailed in Table 2:
+Above, we have demonstrated that biological rates can be scaled by $M$ and $T$ based on empirical derived parameters. The units of these rates are detailed in Table 2:
 
 **Table 2**. Units of temperature scaled biological rates. 
 
@@ -328,7 +323,7 @@ end
 
 # ╔═╡ bbf4d20b-fb31-4658-a08c-2bcd34abdceb
 md"
-The `interval_tkeep` argument sets the saving frequency of the dynamics. In theory, you could save every second, however, it will undountedly cause memory issues and will slow down the simulation. Consequently, we recommend saving at a time step that is reasonable and scales appropriately with the total length of the simulation (i.e. the value provided to the `stop` argument). 
+The `interval_tkeep` argument sets the saving frequency of the dynamics. In theory, you could save every second, however, it will probably cause memory issues and will slow down the simulation. Consequently, we recommend saving at a time step that is reasonable and scales appropriately with the total length of the simulation. For instance, above we have simulated for 3000 years and saved every year. 
 
 "
 
@@ -342,7 +337,7 @@ md"""
 
 # ╔═╡ 80e220f9-5737-4c52-9230-96c4872cc7c8
 md"
-To demonstrate how the scaling of biological rates with mass and temperature can be utilised in the BEFW model, we are going explore the joint effects of Z and T on population and community dynamics. We will first propose a range temperatures and Z values, initiate some networks, and then loop our simulations over them. For simplicity, we only use one food web here (`A` defined above). For illustrative purposes, we will record both total biomass and species persistence as outputs:
+To demonstrate how the scaling of biological rates with mass and temperature can be utilised in the BEFW model, we are going explore the joint effects of Z and T on population and community dynamics. We will first propose a range temperatures and Z values, initiate a network, and simulate. For simplicity, we're only going to use one network (`A` defined above) but this code could be easily extended to included multiple networks (see previous tutorials). Moreover, instead of outputting multiple metrics, we have chosen to output only total biomass and species persistence:
 "
 
 # ╔═╡ f38dd22d-9d2e-44d3-b7c2-1b5d3b4d2248
@@ -371,7 +366,7 @@ end
 
 # ╔═╡ f9aa0c53-cb30-4432-84be-5a6ff7a59b12
 md"""
-In order to visualize the results as a heatmap (or a contour plot), we need to reshape them from a data frame to a 2D array:
+In order to visualize our results as heatmaps (or a contour plots), we first reshape `df` to two 2D arrays:
 """
 
 # ╔═╡ ccdf70b2-e541-4179-8c6b-26614348f7c6
@@ -389,20 +384,38 @@ for (i,z) in enumerate(Z_range)
 	end
 end
 
+# ╔═╡ 806387d9-9d20-4ff2-8f56-ac0ddc65c12a
+md"
+and plot:
+"
+
 # ╔═╡ 8c6b2062-67ef-4c4e-811d-01f8752bc5e3
-p1 = heatmap(string.(T_range .- 273.15), string.(log10.(Z_range)), log10.(TZ_array_biomass), title  = "(log) Total biomass - Heatmap", xlabel = "Temperature (C)", ylabel = "(log) Z") 
+p1 = heatmap(string.(T_range .- 273.15), string.(log10.(Z_range)), log10.(TZ_array_biomass), title  = "log10(Total biomass) - Heatmap", xlabel = "Temperature (C)", ylabel = "log10(Z)") 
 
 # ╔═╡ 69cd4f02-d2c3-400c-86e2-404176b4c69e
-p1b = contour(T_range .- 273.15, log10.(Z_range), log10.(TZ_array_biomass), fill = true, title  = "(log) Total biomass - Contour", xlabel = "Temperature (C)", ylabel = "(log) Z)")
+p1b = contour(T_range .- 273.15, log10.(Z_range), log10.(TZ_array_biomass), fill = true, title  = "log10(Total biomass) - Contour", xlabel = "Temperature (C)", ylabel = "log10(Z)")
 
 # ╔═╡ 2f627073-adf2-4a57-a1da-1af1602ab3a8
-p2 = heatmap(string.(T_range .- 273.15), string.(log10.(Z_range)), TZ_array_persistence, title  = "Persistence", xlabel = "Temperature (C)", ylabel = "(log) Z")
+p2 = heatmap(string.(T_range .- 273.15), string.(log10.(Z_range)), TZ_array_persistence, title  = "Persistence - Heatmap", xlabel = "Temperature (C)", ylabel = "log10(Z)")
+
+# ╔═╡ c410cc91-ed62-497d-84aa-aececeb2f57a
+md"
+Above we see that total biomass reduces as temperature increases, and that this relationship appears more pronouced at smaller Z values. We also see that species persistence drops off at very high temperatures, especially when Z is high. This suggests that increases in temperature can cause species extinctions and results in communities with lower total biomass. It also shows that a relationship between Z and T is evident but that the nature of this relationship might differ based on the metric under investigation. 
+
+**Questions** to think about:
+
+(1) Why does increasing temperature cause reductions in total biomass? Remember that body size is fixed in the BEFW model. 
+
+(2) When Z and T are high, why do species go extinct more often?
+
+(3) How could this experiment be extended to gain further inference? 
+
+"
 
 # ╔═╡ Cell order:
 # ╟─67f58315-b8ec-4ddd-b841-32335d7595cd
 # ╠═036d2e96-f6bc-4ed4-8af7-10b851997f0c
 # ╠═a6b80b5a-3951-4b5b-975f-d37b138a1a95
-# ╟─bd0fd480-f3e0-49e3-9a65-ad250198b05d
 # ╟─0d6531d4-3578-11ec-3262-9b9f32d140c6
 # ╟─db358daf-087d-4f27-ba4c-f782fef1a595
 # ╟─7fa93dec-0317-48c1-9071-1e51f6aadd32
@@ -462,6 +475,8 @@ p2 = heatmap(string.(T_range .- 273.15), string.(log10.(Z_range)), TZ_array_pers
 # ╠═ccdf70b2-e541-4179-8c6b-26614348f7c6
 # ╠═48027a52-ce6b-443b-9e14-c9f0e94410f3
 # ╠═1e90b39b-361a-462e-9ec8-74d012f82abc
+# ╟─806387d9-9d20-4ff2-8f56-ac0ddc65c12a
 # ╠═8c6b2062-67ef-4c4e-811d-01f8752bc5e3
 # ╠═69cd4f02-d2c3-400c-86e2-404176b4c69e
 # ╠═2f627073-adf2-4a57-a1da-1af1602ab3a8
+# ╟─c410cc91-ed62-497d-84aa-aececeb2f57a
